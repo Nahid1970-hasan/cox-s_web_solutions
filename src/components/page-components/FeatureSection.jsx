@@ -1,5 +1,6 @@
 import React from 'react'
 import '../../css/components/FeatureSection.css'
+import img from '../../assets/img/g.png';
 
 const features = [
   'Strategic planning and technology consulting',
@@ -41,7 +42,8 @@ export default function FeatureSection() {
             <div className="shape shape-2"></div>
           </div>
           <img
-            src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=600&q=80"
+            src={img}
+            style={{ width: '100%', height: '600px', objectFit: 'cover' }}
             alt="Consulting professional"
           />
         </div>

@@ -1,24 +1,27 @@
 import React from 'react'
 import '../../css/components/TestimonialsSection.css'
+import ahad from '../../assets/img/noor.jpeg';
+import arzu from '../../assets/img/arzu.jpeg';
+import nahid from '../../assets/img/h.png';
 
 const testimonials = [
   {
-    name: 'Sarah Johnson',
-    role: 'CEO, TechStart Inc.',
-    quote: 'Cox\'s Web Solutions delivered exactly what we needed. Their team is professional, responsive, and truly understands business goals.',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&q=80',
+    name: 'Ahad Noor',
+    role: 'Founder',
+    quote: "Cox's Web Solutions delivered exactly what we needed. Their team is professional, responsive, and truly understands business goals.",
+    avatar: ahad,
   },
   {
-    name: 'Michael Chen',
-    role: 'CTO, DataFlow',
-    quote: 'Outstanding work on our platform migration. Clear communication and on-time delivery. We\'ll definitely work together again.',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&q=80',
+    name: 'Anishur Rahman',
+    role: 'CEO',
+    quote: "Outstanding work on our platform migration. Clear communication and on-time delivery. We'll definitely work together again.",
+    avatar: arzu,
   },
   {
-    name: 'Emily Rodriguez',
-    role: 'Marketing Director, GrowthCo',
-    quote: 'From strategy to execution, they exceeded our expectations. Our digital presence has never been stronger.',
-    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&q=80',
+    name: 'Nahid Hasan',
+    role: 'Software Engineer',
+    quote: "From strategy to execution, they exceeded our expectations. Our digital presence has never been stronger.",
+    avatar: nahid,
   },
 ]
 
@@ -33,7 +36,9 @@ export default function TestimonialsSection() {
         <div className="testimonials-grid">
           {testimonials.map((t) => (
             <article key={t.name} className="testimonial-card">
-              <img src={t.avatar} alt={t.name} className="testimonial-avatar" />
+              <div className="testimonial-avatar-wrapper">
+                <img src={t.avatar} alt={t.name} className="testimonial-avatar" />
+              </div>
               <h3 className="testimonial-name">{t.name}</h3>
               <p className="testimonial-role">{t.role}</p>
               <blockquote className="testimonial-quote">"{t.quote}"</blockquote>
