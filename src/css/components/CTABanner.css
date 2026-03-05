@@ -1,0 +1,68 @@
+.cta-banner {
+  position: relative;
+  padding: 80px 0;
+  overflow: hidden;
+}
+
+.cta-banner-bg {
+  position: absolute;
+  inset: 0;
+  background: url("https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1920&q=80") center/cover no-repeat;
+}
+
+.cta-banner-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(31, 62, 114, 0.88);
+}
+
+.cta-banner-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.cta-banner-title {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+  color: var(--color-white);
+  margin-bottom: 12px;
+}
+
+.cta-banner-title .highlight {
+  color: var(--color-teal);
+}
+
+.cta-phone {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-white);
+  transition: opacity 0.2s;
+}
+
+.cta-phone:hover {
+  opacity: 0.9;
+}
+
+.cta-phone-icon {
+  font-size: 1.25rem;
+}
+
+.cta-banner-btn {
+  padding: 14px 32px;
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .cta-banner-inner {
+    flex-direction: column;
+    text-align: center;
+  }
+}

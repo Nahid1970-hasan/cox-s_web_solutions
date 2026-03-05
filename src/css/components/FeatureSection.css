@@ -1,0 +1,154 @@
+.feature {
+  padding: 80px 0 0;
+  background: var(--color-gray-50);
+}
+
+.feature-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+
+.feature-title {
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 700;
+  color: var(--color-dark-blue);
+  margin-bottom: 20px;
+  line-height: 1.25;
+}
+
+.feature-title .highlight {
+  color: var(--color-teal);
+}
+
+.feature-text {
+  color: var(--color-gray-600);
+  margin-bottom: 24px;
+  line-height: 1.65;
+}
+
+.feature-list {
+  list-style: none;
+}
+
+.feature-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  color: var(--color-gray-800);
+}
+
+.feature-list .check {
+  color: var(--color-teal);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.feature-media {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+.feature-media img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.feature-shapes {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  pointer-events: none;
+}
+
+.feature-shapes .shape {
+  position: absolute;
+  border-radius: 12px;
+  opacity: 0.2;
+}
+
+.feature-shapes .shape-1 {
+  width: 120px;
+  height: 120px;
+  background: var(--color-teal);
+  bottom: 20px;
+  right: 20px;
+  transform: rotate(8deg);
+}
+
+.feature-shapes .shape-2 {
+  width: 80px;
+  height: 80px;
+  background: var(--color-dark-blue);
+  bottom: 50px;
+  right: 100px;
+  transform: rotate(-10deg);
+}
+
+.feature-stats {
+  margin-top: 64px;
+  padding: 48px 0 80px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.stat-card {
+  background: var(--color-white);
+  padding: 28px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+  transition: box-shadow 0.2s;
+}
+
+.stat-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.stat-icon {
+  font-size: 1.5rem;
+  margin-bottom: 12px;
+  color: var(--color-teal);
+}
+
+.stat-value {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-dark-blue);
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: var(--color-gray-600);
+}
+
+@media (max-width: 900px) {
+  .feature-inner {
+    grid-template-columns: 1fr;
+  }
+
+  .feature-media {
+    order: -1;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}

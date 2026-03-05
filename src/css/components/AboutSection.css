@@ -1,0 +1,137 @@
+.about {
+  padding: 80px 0 60px;
+  background: var(--color-white);
+}
+
+.about-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+
+.about-media {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+.about-media img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.about-shapes {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.about-shapes .shape {
+  position: absolute;
+  border-radius: 12px;
+  opacity: 0.2;
+}
+
+.about-shapes .shape-1 {
+  width: 120px;
+  height: 120px;
+  background: var(--color-teal);
+  bottom: 20px;
+  left: 20px;
+  transform: rotate(-8deg);
+}
+
+.about-shapes .shape-2 {
+  width: 80px;
+  height: 80px;
+  background: var(--color-dark-blue);
+  bottom: 50px;
+  left: 100px;
+  transform: rotate(10deg);
+}
+
+.about-title {
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 700;
+  color: var(--color-dark-blue);
+  margin-bottom: 20px;
+  line-height: 1.25;
+}
+
+.about-title .highlight {
+  color: var(--color-teal);
+}
+
+.about-text {
+  color: var(--color-gray-600);
+  margin-bottom: 24px;
+  line-height: 1.65;
+}
+
+.about-list {
+  list-style: none;
+  margin-bottom: 28px;
+}
+
+.about-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  color: var(--color-gray-800);
+}
+
+.about-list .check {
+  color: var(--color-teal);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.about-clients {
+  margin-top: 64px;
+  padding-top: 48px;
+  border-top: 1px solid var(--color-gray-200);
+}
+
+.clients-label {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--color-gray-600);
+  margin-bottom: 24px;
+}
+
+.clients-logos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 32px;
+  align-items: center;
+}
+
+.client-logo {
+  height: 36px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-gray-600);
+  filter: grayscale(1);
+  opacity: 0.8;
+}
+
+@media (max-width: 900px) {
+  .about-inner {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .about-media {
+    order: -1;
+  }
+}
