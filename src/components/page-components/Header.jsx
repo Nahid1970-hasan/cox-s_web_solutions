@@ -1,10 +1,9 @@
 import React, { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import '../../css/components/Header.css'
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
-  const location = useLocation()
 
   const navLinks = [
     { label: 'Home', to: '/', isRoute: true },
@@ -31,7 +30,7 @@ export default function Header() {
             ))}
           </ul>
         </nav>
-        <a href={location.pathname === '/' ? '#contact' : '/contact'} className="header-cta btn btn-coral">Get Started</a>
+        <Link to="/login" className="header-login btn btn-outline" onClick={() => setMenuOpen(false)}>Login</Link>
         <button
           type="button"
           className="menu-toggle"

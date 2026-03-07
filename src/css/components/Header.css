@@ -40,7 +40,7 @@
   color: var(--color-white);
 }
 
-.header-cta {
+.header-login {
   padding: 10px 20px;
   font-size: 0.9rem;
 }
@@ -83,8 +83,8 @@
     gap: 16px;
   }
 
-  .header-cta {
-    display: none;
+  .header-login {
+    display: inline-flex;
   }
 
   .menu-toggle {

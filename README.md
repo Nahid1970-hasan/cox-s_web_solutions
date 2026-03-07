@@ -31,3 +31,19 @@ npm run preview
 ```
 
 Build output is in the `dist` folder.
+
+## Connecting to Django backend
+
+The app talks to a Django backend for login and other API calls.
+
+1. Copy the example env file and set your Django API base URL:
+   ```bash
+   cp .env.example .env
+   ```
+2. Edit `.env` and set `VITE_API_BASE_URL` to your Django server (no trailing slash), e.g.:
+   ```
+   VITE_API_BASE_URL=http://localhost:8000
+   ```
+3. Restart the dev server after changing `.env`.
+
+Use `apiUrl('/api/...')` from `src/config/env.js` for any API path so it uses this base URL.

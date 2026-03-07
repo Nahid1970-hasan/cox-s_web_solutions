@@ -15,6 +15,8 @@ import BlogSection from './components/page-components/BlogSection'
 import ContactSection from './components/page-components/ContactSection'
 import Contact from './components/page-components/Contact'
 import Blogs from './components/page-components/Blogs'
+import Login from './components/page-components/Login'
+import AdminDashboard from './components/page-components/AdminDashboard'
 import Footer from './components/page-components/Footer'
 
 function HomePage() {
@@ -75,6 +77,22 @@ function BlogsPage() {
   )
 }
 
+function LoginPage() {
+  return (
+    <>
+      <Header />
+      <main>
+        <Login />
+      </main>
+      <Footer />
+    </>
+  )
+}
+
+function AdminPage() {
+  return <AdminDashboard />
+}
+
 function App() {
   return (
     <Routes>
@@ -82,6 +100,8 @@ function App() {
       <Route path="/projects" element={<ProjectsPage />} />
       <Route path="/contact" element={<ContactPage />} />
       <Route path="/blogs" element={<BlogsPage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/admin" element={<AdminPage />} />
     </Routes>
   )
 }
