@@ -1,0 +1,72 @@
+.ui-input-wrap {
+  margin-bottom: 16px;
+}
+
+.ui-input-wrap--error .ui-input {
+  border-color: #dc2626;
+}
+
+.ui-input-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-dark-blue);
+  margin-bottom: 6px;
+}
+
+.ui-input-required {
+  color: #dc2626;
+  margin-left: 2px;
+}
+
+.ui-input-inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ui-input-icon {
+  position: absolute;
+  right: 12px;
+  font-size: 1rem;
+  pointer-events: none;
+  opacity: 0.6;
+  z-index: 1;
+}
+
+.ui-input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 1rem;
+  font-family: var(--font-sans);
+  border: 2px solid var(--color-gray-200);
+  border-radius: var(--radius);
+  background: var(--color-white);
+  transition: border-color 0.2s;
+}
+
+.ui-input[data-search="true"] {
+  padding-right: 36px;
+}
+
+.ui-input:focus {
+  outline: none;
+  border-color: var(--color-teal);
+}
+
+.ui-input:disabled {
+  background: var(--color-gray-100);
+  cursor: not-allowed;
+}
+
+.ui-input--select {
+  cursor: pointer;
+  appearance: auto;
+}
+
+.ui-input-error {
+  display: block;
+  font-size: 0.85rem;
+  color: #dc2626;
+  margin-top: 4px;
+}

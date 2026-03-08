@@ -1,0 +1,229 @@
+/* Users page layout – SustainAbility-style: search form, toolbar, table, footer */
+.admin-users {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Search / Filter form – grid at top */
+.users-search-form {
+  margin-bottom: 24px;
+}
+
+.users-search-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr) auto;
+  gap: 16px;
+  align-items: end;
+}
+
+@media (max-width: 900px) {
+  .users-search-grid {
+    grid-template-columns: 1fr 1fr auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .users-search-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.users-search-field .ui-input-wrap {
+  margin-bottom: 0;
+}
+
+.users-search-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.users-loading,
+.users-error {
+  padding: 32px;
+  text-align: center;
+  font-size: 1rem;
+  color: var(--color-gray-600);
+}
+
+.users-error {
+  color: #dc2626;
+}
+
+.users-loading-inline,
+.users-error-inline {
+  padding: 8px 0;
+  font-size: 0.9rem;
+}
+
+.admin-users .users-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.admin-users .users-toolbar-left {
+  display: flex;
+  gap: 10px;
+}
+
+.admin-users .users-toolbar-right {
+  flex-shrink: 0;
+}
+
+.admin-users .users-toolbar-right .ui-input-wrap {
+  margin-bottom: 0;
+}
+
+.admin-users .users-toolbar-right .ui-input-inner {
+  min-width: 200px;
+}
+
+.users-table-section {
+  margin-bottom: 16px;
+}
+
+/* No horizontal scroll: table fits width, content wraps */
+.users-table-section .ui-table-wrap {
+  margin-bottom: 0;
+  overflow: visible;
+}
+
+.admin-users .users-table-section .ui-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.admin-users .users-table-section .ui-table th,
+.admin-users .users-table-section .ui-table td {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.admin-users .users-table-section .ui-table .users-action-cell {
+  white-space: nowrap;
+  width: 1%;
+}
+
+/* Footer: Delete Selected + Pagination */
+.users-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.users-footer-left {
+  display: flex;
+  gap: 10px;
+}
+
+.users-footer-right {
+  display: flex;
+  align-items: center;
+}
+
+.admin-users .ui-pagination {
+  margin-top: 0;
+}
+
+/* Modal dialog – 2-column form grid (SustainAbility-style) */
+.users-modal-dialog.ui-modal {
+  max-width: 560px;
+}
+
+.users-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 20px;
+  margin-top: 8px;
+}
+
+.users-form-field {
+  min-width: 0;
+}
+
+.users-form-field--full {
+  grid-column: 1 / -1;
+}
+
+.users-form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-gray-200);
+}
+
+/* Action column dropdown */
+.users-action-cell {
+  position: relative;
+}
+
+.users-action-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1099;
+}
+
+.users-action-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  min-width: 120px;
+  background: var(--color-white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-gray-200);
+  z-index: 11;
+  overflow: hidden;
+}
+
+/* Portal-rendered dropdown: no scroll, works for last row */
+.users-action-dropdown--fixed {
+  position: fixed;
+  margin-top: 0;
+  z-index: 1100;
+}
+
+.users-action-dropdown button {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 0.9rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--color-gray-800);
+  font-family: var(--font-sans);
+}
+
+.users-action-dropdown button:hover {
+  background: var(--color-gray-100);
+}
+
+.users-action-delete {
+  color: #dc2626 !important;
+}
+
+.users-role-options {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.users-role-options .ui-btn {
+  flex: 1;
+}

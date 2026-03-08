@@ -1,5 +1,7 @@
 import React from 'react'
 import { Routes, Route } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import Header from './components/page-components/Header'
 import Hero from './components/page-components/Hero'
 import ServicesGrid from './components/page-components/ServicesGrid'
@@ -17,6 +19,9 @@ import Contact from './components/page-components/Contact'
 import Blogs from './components/page-components/Blogs'
 import Login from './components/page-components/Login'
 import AdminDashboard from './components/page-components/AdminDashboard'
+import AdminHome from './components/page-components/admin/AdminHome'
+import Users from './components/page-components/admin/Users'
+import UserSetup from './components/page-components/admin/UserSetup'
 import Footer from './components/page-components/Footer'
 
 function HomePage() {
@@ -89,20 +94,49 @@ function LoginPage() {
   )
 }
 
-function AdminPage() {
-  return <AdminDashboard />
-}
-
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/projects" element={<ProjectsPage />} />
-      <Route path="/contact" element={<ContactPage />} />
-      <Route path="/blogs" element={<BlogsPage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/admin" element={<AdminPage />} />
-    </Routes>
+    <>
+      <ToastContainer position="top-right" autoClose={4000} closeOnClick pauseOnHover theme="light" />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/projects" element={<ProjectsPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/blogs" element={<BlogsPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/admin" element={<AdminDashboard />}>
+          <Route index element={<AdminHome />} />
+          <Route path="users" element={<UsersPage />} />
+        <Route path="usersetup" element={<UserSetupPage />} />
+        </Route>
+      </Routes>
+    </>
+  )
+}
+
+function UsersPage() {
+  return (
+    <>
+      <header className="admin-header">
+        <h1>Users</h1>
+      </header>
+      <div className="admin-content">
+        <Users />
+      </div>
+    </>
+  )
+}
+
+function UserSetupPage() {
+  return (
+    <>
+      <header className="admin-header">
+        <h1>User Setup</h1>
+      </header>
+      <div className="admin-content">
+        <UserSetup />
+      </div>
+    </>
   )
 }
 

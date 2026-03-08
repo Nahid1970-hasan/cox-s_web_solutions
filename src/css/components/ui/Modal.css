@@ -1,0 +1,74 @@
+.ui-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 24px;
+  animation: ui-modal-fadeIn 0.2s ease;
+}
+
+@keyframes ui-modal-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.ui-modal {
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  width: 100%;
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  box-shadow: var(--shadow-lg);
+  animation: ui-modal-slideUp 0.2s ease;
+}
+
+@keyframes ui-modal-slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ui-modal--sm {
+  max-width: 380px;
+}
+
+.ui-modal--md {
+  max-width: 420px;
+}
+
+.ui-modal--lg {
+  max-width: 560px;
+}
+
+.ui-modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-dark-blue);
+  margin: 0 0 20px 0;
+}
+
+.ui-modal-body {
+  font-size: 0.95rem;
+  color: var(--color-gray-800);
+}
+
+.ui-modal-body p {
+  margin: 0 0 16px 0;
+  color: var(--color-gray-600);
+}
+
+.ui-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}

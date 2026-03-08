@@ -1,36 +1,36 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { apiUrl } from '../../config/env'
+import { toast } from 'react-toastify'
+import { apiUrl, API_PATHS } from '../../config/env'
 import '../../css/components/Login.css'
 
 export default function Login() {
   const navigate = useNavigate()
   const [formData, setFormData] = useState({ username: '', password: '' })
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
 
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
-    setError('')
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setError('')
     setLoading(true)
     try {
-      const res = await fetch(apiUrl('/api/users/login/'), {
+      const res = await fetch(apiUrl(API_PATHS.LOGIN), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           username: formData.username,
           password: formData.password,
+          role: 'admin',
         }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
-        setError(data.message || data.detail || 'Login failed. Please check your credentials.')
+        const msg = data.message || data.detail || 'Login failed. Please check your credentials.'
+        toast.error(msg)
         setLoading(false)
         return
       }
@@ -40,9 +40,13 @@ export default function Login() {
       if (data.access) {
         localStorage.setItem('authToken', data.access)
       }
-      navigate('/admin')
+      const role = (data.user?.role ?? data.role) ? String(data.user?.role ?? data.role).toLowerCase() : 'admin'
+      localStorage.setItem('userRole', role)
+      toast.success('Login successful.')
+      const showUserSetup = role === 'superadmin' || role === 'admin'
+      navigate(showUserSetup ? '/admin/usersetup' : '/admin')
     } catch (err) {
-      setError('Unable to connect. Please try again.')
+      toast.error('Unable to connect. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -53,7 +57,6 @@ export default function Login() {
       <div className="login-container">
         <div className="login-card">
           <h1 className="login-title">Login</h1>
-          {error && <p className="login-error">{error}</p>}
           <form className="login-form" onSubmit={handleSubmit}>
             <div className="form-group">
               <label htmlFor="login-username">Username</label>

@@ -1,0 +1,49 @@
+import React, { useEffect } from 'react'
+import '../../css/components/ui/Modal.css'
+
+/**
+ * Reusable modal dialog.
+ * @param {boolean} open
+ * @param {function} onClose
+ * @param {string} title
+ * @param {string} size - 'sm' | 'md' | 'lg'
+ * @param {React.ReactNode} children
+ * @param {string} className
+ */
+export default function Modal({ open, onClose, title, size = 'md', children, className = '' }) {
+  useEffect(() => {
+    if (open) {
+      const handleEscape = (e) => { if (e.key === 'Escape') onClose() }
+      document.addEventListener('keydown', handleEscape)
+      document.body.style.overflow = 'hidden'
+      return () => {
+        document.removeEventListener('keydown', handleEscape)
+        document.body.style.overflow = ''
+      }
+    }
+  }, [open, onClose])
+
+  if (!open) return null
+
+  return (
+    <div
+      className="ui-modal-backdrop"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={title ? 'ui-modal-title' : undefined}
+    >
+      <div
+        className={`ui-modal ui-modal--${size} ${className}`.trim()}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {title && (
+          <h3 id="ui-modal-title" className="ui-modal-title">{title}</h3>
+        )}
+        <div className="ui-modal-body">
+          {children}
+        </div>
+      </div>
+    </div>
+  )
+}
