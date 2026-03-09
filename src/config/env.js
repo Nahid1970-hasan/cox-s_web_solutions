@@ -29,6 +29,13 @@ export const API_PATHS = {
   updateUser: (id) => `/api/updateusers/${id}/`,
   deleteUser: (id) => `/api/deleteusers/${id}/`,
   updateUserRole: (id) => `/api/updateusers/${id}/role/`,
+  // Projects (admin)
+  PROJECTS_LIST: '/api/projectdashboard/',
+  projectDetail: (id) => `/api/projectall/${id}/`,
+  ADD_PROJECT: '/api/add_project/',
+  updateProject: (id) => `/api/update_project/${id}/`,
+  deleteProject: (id) => `/api/delete_project/${id}/`,
+  UPLOAD: '/api/upload/',
 }
 
 export { API_BASE_URL }

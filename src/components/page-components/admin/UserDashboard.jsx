@@ -46,7 +46,7 @@ const dateBodyTemp = (rowData, field) => {
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
-export default function Users() {
+export default function UserDashboard() {
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
@@ -64,6 +64,7 @@ export default function Users() {
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState('')
   const [filters, setFilters] = useState({ name: '', email: '', role: '', status: '' })
+  const [userRole, setUserRole] = useState(() => (localStorage.getItem('userRole') || '').toLowerCase())
 
   useEffect(() => {
     const load = async () => {
@@ -247,7 +248,8 @@ export default function Users() {
     )
   }
 
-  // Customize column widths via width (e.g. "80px", "10rem", "15%") or style
+  // Customize column widths – show Action column only for superadmin
+
   const tableColumns = [
     {
       field: 'id',
@@ -289,13 +291,14 @@ export default function Users() {
       width: '150px',
       sortableBody: (rowData) => dateBodyTemp(rowData, 'createdAt'),
     },
-    {
-      field: 'action',
-      header: 'Action',
-      width: '100px',
-      sortableBody: renderActionCell,
-    },
+    // {
+    //   field: 'action',
+    //   header: 'Action',
+    //   width: '100px',
+    //   sortableBody: renderActionCell,
+    // },
   ]
+ 
 
   if (loading) {
     return (
@@ -316,12 +319,6 @@ export default function Users() {
   return (
     <div className="admin-users">
     
-      <div className="users-toolbar">
-        <div className="users-toolbar-left">
-          <Button variant="success" onClick={openNew}>+ New</Button>
-        </div>
-      </div>
-
       {editLoading && <div className="users-loading users-loading-inline">Loading user…</div>}
       {editError && <div className="users-error users-error-inline">{editError}</div>}
 

@@ -21,8 +21,10 @@ import Login from './components/page-components/Login'
 import AdminDashboard from './components/page-components/AdminDashboard'
 import AdminHome from './components/page-components/admin/AdminHome'
 import Users from './components/page-components/admin/Users'
-import UserSetup from './components/page-components/admin/UserSetup'
 import Footer from './components/page-components/Footer'
+import UserDashboard from './components/page-components/admin/UserDashboard'
+import AdminProjects from './components/page-components/admin/Projects'
+import AdminBlogs from './components/page-components/admin/Blogs'
 
 function HomePage() {
   return (
@@ -107,7 +109,10 @@ function App() {
         <Route path="/admin" element={<AdminDashboard />}>
           <Route index element={<AdminHome />} />
           <Route path="users" element={<UsersPage />} />
-        <Route path="usersetup" element={<UserSetupPage />} />
+          <Route path="usersetup" element={<UserSetupPage />} />
+          <Route path="projects" element={<AdminProjectsPage />} />
+          <Route path="blogs" element={<AdminBlogsPage />} />
+          <Route path="contact" element={<AdminContactPage />} />
         </Route>
       </Routes>
     </>
@@ -116,27 +121,46 @@ function App() {
 
 function UsersPage() {
   return (
-    <>
-      <header className="admin-header">
-        <h1>Users</h1>
-      </header>
-      <div className="admin-content">
-        <Users />
-      </div>
-    </>
+    <div className="admin-content">
+      <h2 className="admin-content-title">Users</h2>
+      <Users />
+    </div>
   )
 }
 
 function UserSetupPage() {
   return (
-    <>
-      <header className="admin-header">
-        <h1>User Setup</h1>
-      </header>
-      <div className="admin-content">
-        <UserSetup />
-      </div>
-    </>
+    <div className="admin-content">
+      <h2 className="admin-content-title">User Dashboard</h2>
+      <UserDashboard />
+    </div>
+  )
+}
+
+function AdminProjectsPage() {
+  return (
+    <div className="admin-content">
+      <h2 className="admin-content-title">Projects</h2>
+      <AdminProjects />
+    </div>
+  )
+}
+
+function AdminBlogsPage() {
+  return (
+    <div className="admin-content">
+      <h2 className="admin-content-title">Blogs</h2>
+      <AdminBlogs />
+    </div>
+  )
+}
+
+function AdminContactPage() {
+  return (
+    <div className="admin-content">
+      <h2 className="admin-content-title">Contact</h2>
+      <Contact />
+    </div>
   )
 }
 

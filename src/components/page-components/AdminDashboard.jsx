@@ -1,37 +1,10 @@
-import React, { useState, useEffect } from 'react'
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { API_PATHS } from '../../config/env'
-import { coreAxios } from '../../config/axios'
+import React from 'react'
+import { Link, Outlet, useLocation } from 'react-router-dom'
 import '../../css/components/AdminDashboard.css'
 
 export default function AdminDashboard() {
   const location = useLocation()
-  const navigate = useNavigate()
   const path = location.pathname
-  const [userRole, setUserRole] = useState(() => localStorage.getItem('userRole') || null)
-
-  useEffect(() => {
-    const loadMe = async () => {
-      try {
-        const { data } = await coreAxios.get(API_PATHS.USER_ME)
-        const role = data?.role ?? data?.user?.role ?? null
-        if (role) {
-          setUserRole(String(role))
-          localStorage.setItem('userRole', String(role))
-        }
-      } catch {
-        setUserRole(null)
-      }
-    }
-    loadMe()
-  }, [])
-
-  useEffect(() => {
-    const canAccessUserSetup = userRole === 'superadmin' || userRole === 'admin'
-    if (path.startsWith('/admin/usersetup') && !canAccessUserSetup) {
-      navigate('/admin', { replace: true })
-    }
-  }, [path, userRole, navigate])
 
   const handleLogout = () => {
     localStorage.removeItem('authToken')
@@ -39,7 +12,6 @@ export default function AdminDashboard() {
     window.location.href = '/login'
   }
 
-  const showUserSetupModule = userRole === 'superadmin' || userRole === 'admin'
 
   return (
     <div className="admin-dashboard">
@@ -49,13 +21,11 @@ export default function AdminDashboard() {
         </div>
         <nav className="admin-nav">
           <Link to="/admin" className={`admin-nav-item ${path === '/admin' ? 'active' : ''}`}>Dashboard</Link>
-          {showUserSetupModule && (
-            <Link to="/admin/usersetup" className={`admin-nav-item ${path.startsWith('/admin/usersetup') ? 'active' : ''}`}>User Setup</Link>
-          )}
-          <Link to="/admin/users" className={`admin-nav-item ${path.startsWith('/admin/users') ? 'active' : ''}`}>Users</Link>
-          <Link to="/admin" className="admin-nav-item">Projects</Link>
-          <Link to="/admin" className="admin-nav-item">Blogs</Link>
-          <Link to="/admin" className="admin-nav-item">Contact</Link>
+          <Link to="/admin/usersetup" className={`admin-nav-item ${path.startsWith('/admin/usersetup') ? 'active' : ''}`}>User Dashboard</Link>
+          <Link to="/admin/users" className={`admin-nav-item ${path.startsWith('/admin/users') && !path.startsWith('/admin/usersetup') ? 'active' : ''}`}>Users</Link>
+          <Link to="/admin/projects" className={`admin-nav-item ${path.startsWith('/admin/projects') ? 'active' : ''}`}>Projects</Link>
+          <Link to="/admin/blogs" className={`admin-nav-item ${path.startsWith('/admin/blogs') ? 'active' : ''}`}>Blogs</Link>
+          <Link to="/admin/contact" className={`admin-nav-item ${path.startsWith('/admin/contact') ? 'active' : ''}`}>Contact</Link>
         </nav>
         <div className="admin-sidebar-footer">
           <button type="button" className="admin-logout" onClick={handleLogout}>

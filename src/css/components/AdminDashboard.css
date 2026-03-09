@@ -100,9 +100,15 @@
 
 .admin-content {
   flex: 1;
-  padding: 32px;
+  padding:10px 20px 0 20px !important;
 }
 
+.admin-content-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-dark-blue);
+  margin: 0 0 10px 0 !important;
+}
 .admin-cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));

@@ -43,8 +43,7 @@ export default function Login() {
       const role = (data.user?.role ?? data.role) ? String(data.user?.role ?? data.role).toLowerCase() : 'admin'
       localStorage.setItem('userRole', role)
       toast.success('Login successful.')
-      const showUserSetup = role === 'superadmin' || role === 'admin'
-      navigate(showUserSetup ? '/admin/usersetup' : '/admin')
+      navigate('/admin')
     } catch (err) {
       toast.error('Unable to connect. Please try again.')
     } finally {

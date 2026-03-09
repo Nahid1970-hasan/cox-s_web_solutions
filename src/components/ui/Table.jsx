@@ -26,46 +26,48 @@ export default function Table({ columns = [], data = [], renderCell, renderHeade
 
   return (
     <div className="ui-table-wrap">
-      <table className="ui-table">
-        <thead>
-          <tr>
-            {columns.map((col) => {
-              const cellStyle = getCellStyle(col)
-              return (
-                <th key={colKey(col)} style={Object.keys(cellStyle).length ? cellStyle : undefined}>
-                  {typeof renderHeader === 'function' ? (renderHeader(colKey(col)) ?? (col.header ?? col.label)) : (col.header ?? col.label)}
-                </th>
-              )
-            })}
-          </tr>
-        </thead>
-        <tbody>
-          {data.length === 0 ? (
+      <div className="ui-table-scroll" style={{ overflowX: 'auto', overflowY: 'hidden' }}>
+        <table className="ui-table">
+          <thead>
             <tr>
-              <td colSpan={columns.length} className="ui-table-empty">
-                {emptyMessage}
-              </td>
+              {columns.map((col) => {
+                const cellStyle = getCellStyle(col)
+                return (
+                  <th key={colKey(col)} style={Object.keys(cellStyle).length ? cellStyle : undefined}>
+                    {typeof renderHeader === 'function' ? (renderHeader(colKey(col)) ?? (col.header ?? col.label)) : (col.header ?? col.label)}
+                  </th>
+                )
+              })}
             </tr>
-          ) : (
-            data.map((row, rowIndex) => (
-              <tr key={row.id ?? rowIndex}>
-                {columns.map((col) => {
-                  const key = colKey(col)
-                  const content = typeof col.sortableBody === 'function'
-                    ? col.sortableBody(row)
-                    : (typeof renderCell === 'function' ? renderCell(key, row[key], row) : row[key])
-                  const cellStyle = getCellStyle(col)
-                  return (
-                    <td key={key} style={Object.keys(cellStyle).length ? cellStyle : undefined}>
-                      {content}
-                    </td>
-                  )
-                })}
+          </thead>
+          <tbody>
+            {data.length === 0 ? (
+              <tr>
+                <td colSpan={columns.length} className="ui-table-empty">
+                  {emptyMessage}
+                </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : (
+              data.map((row, rowIndex) => (
+                <tr key={row.id ?? rowIndex}>
+                  {columns.map((col) => {
+                    const key = colKey(col)
+                    const content = typeof col.sortableBody === 'function'
+                      ? col.sortableBody(row)
+                      : (typeof renderCell === 'function' ? renderCell(key, row[key], row) : row[key])
+                    const cellStyle = getCellStyle(col)
+                    return (
+                      <td key={key} style={Object.keys(cellStyle).length ? cellStyle : undefined}>
+                        {content}
+                      </td>
+                    )
+                  })}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }
