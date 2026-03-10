@@ -2,18 +2,18 @@ import React, { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { toast } from 'react-toastify'
 import { Button, InputField, Modal, Table, Pagination } from '../../ui'
-import { API_PATHS } from '../../../config/env'
+import { apiUrl, API_PATHS } from '../../../config/env'
 import { coreAxios } from '../../../config/axios'
 import '../../../css/components/Users.css'
 
 // Map API project/blog shape to table row shape
 function mapBlogFromApi(p) {
   return {
-    id: p.project_id ?? p.id,
-    project_name: String(p.project_name ?? ''),
+    id: p.blog_id ?? p.id,
+    blog_title: String(p.blog_title ?? ''),
     date: p.date ?? p.created_at ?? p.created_date ?? '',
-    project_details: p.project_details ?? '',
-    project_link: p.project_link ?? '',
+    blog_content: p.blog_content ?? '',
+    blog_link: p.blog_link ?? '',
     img_url: p.img_url ?? '',
   }
 }
@@ -42,10 +42,10 @@ export default function Blogs() {
   const [deleteConfirm, setDeleteConfirm] = useState(null)
   const [actionDropdown, setActionDropdown] = useState(null)
   const [form, setForm] = useState({
-    project_name: '',
+    blog_title: '',
     date: '',
-    project_details: '',
-    project_link: '',
+    blog_content: '',
+    blog_link: '',
     img_url: '',
   })
   const [editLoading, setEditLoading] = useState(false)
@@ -54,11 +54,12 @@ export default function Blogs() {
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState('')
+  const [imagePreview, setImagePreview] = useState('')
 
   useEffect(() => {
     const load = async () => {
       try {
-        const { data } = await coreAxios.get(API_PATHS.PROJECTS_LIST)
+        const { data } = await coreAxios.get(API_PATHS.BLOGS_LIST)
         const list = Array.isArray(data) ? data : (data.results ?? [])
         const mapped = (Array.isArray(list) ? list : []).map(mapBlogFromApi)
         setRows(mapped)
@@ -80,10 +81,10 @@ export default function Blogs() {
   const openNew = () => {
     setEditingRow(null)
     setForm({
-      project_name: '',
+      blog_title: '',
       date: '',
-      project_details: '',
-      project_link: '',
+      blog_content: '',
+      blog_link: '',
       img_url: '',
     })
     setSaveError('')
@@ -94,14 +95,14 @@ export default function Blogs() {
     setActionDropdown(null)
     setEditLoading(true)
     try {
-      const { data } = await coreAxios.get(API_PATHS.projectDetail(row.id))
+      const { data } = await coreAxios.get(API_PATHS.blogDetail(row.id))
       const mapped = mapBlogFromApi(data)
       setEditingRow(mapped)
       setForm({
-        project_name: mapped.project_name,
+        blog_title: mapped.blog_title,
         date: mapped.date,
-        project_details: mapped.project_details,
-        project_link: mapped.project_link,
+        blog_content: mapped.blog_content,
+        blog_link: mapped.blog_link,
         img_url: mapped.img_url,
       })
       setModalOpen(true)
@@ -118,24 +119,24 @@ export default function Blogs() {
   const handleSave = async (e) => {
     e.preventDefault()
     const formData = new FormData()
-    formData.append('project_name', form.project_name.trim())
+    formData.append('blog_title', form.blog_title.trim())
     if (form.date) formData.append('date', form.date)
-    formData.append('project_details', form.project_details.trim())
-    formData.append('project_link', form.project_link.trim())
+    formData.append('blog_content', form.blog_content.trim())
+    formData.append('blog_link', form.blog_link.trim())
     formData.append('img_url', form.img_url.trim())
 
     setSaveError('')
     setSaving(true)
     try {
       if (editingRow) {
-        const { data } = await coreAxios.patch(API_PATHS.updateProject(editingRow.id), formData, {
+        const { data } = await coreAxios.patch(API_PATHS.updateBlog(editingRow.id), formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         })
         const mapped = mapBlogFromApi(data)
         setRows((prev) => prev.map((r) => (r.id === editingRow.id ? mapped : r)))
         toast.success('Blog updated successfully.')
       } else {
-        const { data } = await coreAxios.post(API_PATHS.ADD_PROJECT, formData, {
+        const { data } = await coreAxios.post(API_PATHS.ADD_BLOG, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         })
         const mapped = mapBlogFromApi(data)
@@ -156,7 +157,7 @@ export default function Blogs() {
     setDeleteError('')
     setDeleting(true)
     try {
-      await coreAxios.delete(API_PATHS.deleteProject(row.id))
+      await coreAxios.delete(API_PATHS.deleteBlog(row.id))
       setRows((prev) => prev.filter((r) => r.id !== row.id))
       setDeleteConfirm(null)
       setActionDropdown(null)
@@ -167,6 +168,39 @@ export default function Blogs() {
       toast.error(Array.isArray(msg) ? msg.join(' ') : String(msg))
     } finally {
       setDeleting(false)
+    }
+  }
+
+  const handleImageFileChange = async (e) => {
+    const file = e.target.files && e.target.files[0]
+    if (!file) {
+      setImagePreview('')
+      return
+    }
+    const formData = new FormData()
+    formData.append('file', file)
+    try {
+      const res = await fetch(apiUrl(API_PATHS.UPLOAD), {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        const msg = data.message || data.detail || 'Failed to upload image.'
+        toast.error(msg)
+        return
+      }
+      const url = data.url || data.img_url || data.path || data.file || ''
+      if (url) {
+        setForm((f) => ({ ...f, img_url: url }))
+        setImagePreview(url)
+        toast.success('Image uploaded.')
+      } else {
+        toast.error('Upload succeeded but no URL returned.')
+      }
+    } catch (err) {
+      toast.error('Failed to upload image.')
     }
   }
 
@@ -220,10 +254,10 @@ export default function Blogs() {
       sortableBody: (rowData) => tableBodyTemp(rowData, 'id'),
     },
     {
-      field: 'project_name',
+      field: 'blog_title',
       header: 'Title',
       width: '200px',
-      sortableBody: (rowData) => tableBodyTemp(rowData, 'project_name'),
+      sortableBody: (rowData) => tableBodyTemp(rowData, 'blog_title'),
     },
     {
       field: 'date',
@@ -232,26 +266,26 @@ export default function Blogs() {
       sortableBody: (rowData) => dateBodyTemp(rowData, 'date'),
     },
     {
-      field: 'project_details',
+      field: 'blog_content',
       header: 'Details',
       width: '260px',
       sortableBody: (rowData) => {
-        const v = rowData?.project_details ?? ''
+        const v = rowData?.blog_content ?? ''
         const text = String(v)
         const truncated = text.length > 120 ? `${text.slice(0, 117)}...` : text
         return truncated || '—'
       },
     },
     {
-      field: 'project_link',
+      field: 'blog_link',
       header: 'Link',
       width: '160px',
       sortableBody: (rowData) => {
-        const url = rowData?.project_link
+        const url = rowData?.blog_link
         if (!url) return '—'
         return (
           <a href={url} target="_blank" rel="noreferrer" className="ui-table-link">
-            {rowData?.project_link}
+            {rowData?.blog_link}
           </a>
         )
       },
@@ -266,7 +300,7 @@ export default function Blogs() {
         return (
           <img
             src={url}
-            alt={rowData?.project_name || 'Blog image'}
+            alt={rowData?.blog_title || 'Blog image'}
             style={{ width: 48, height: 32, objectFit: 'cover', borderRadius: 4, display: 'block' }}
           />
         )
@@ -327,6 +361,91 @@ export default function Blogs() {
           />
         </div>
       </div>
+
+      <Modal open={modalOpen} onClose={() => { setModalOpen(false); setSaveError('') }} title={editingRow ? 'Update Blog' : 'Add New Blog'} size="lg" className="users-modal-dialog">
+        <form onSubmit={handleSave} className="users-form-grid">
+          {saveError && <div className="users-error users-error-inline" style={{ gridColumn: '1 / -1' }}>{saveError}</div>}
+          <div className="users-form-field">
+            <InputField
+              label="Title"
+              name="blog_title"
+              value={form.blog_title}
+              onChange={(e) => setForm((f) => ({ ...f, blog_title: e.target.value }))}
+              required
+            />
+          </div>
+          <div className="users-form-field">
+            <InputField
+              label="Date"
+              name="date"
+              type="date"
+              value={form.date}
+              onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
+            />
+          </div>
+          <div className="users-form-field">
+            <InputField
+              label="Blog Link"
+              name="blog_link"
+              type="url"
+              value={form.blog_link}
+              onChange={(e) => setForm((f) => ({ ...f, blog_link: e.target.value }))}
+              placeholder="https://example.com/blog"
+            />
+          </div>
+          <div className="users-form-field ">
+            <label htmlFor="project-image-file" className="users-upload-label">Upload Image</label>
+            <div>
+              <input
+                id="project-image-file"
+                type="file"
+                accept="image/*"
+                onChange={handleImageFileChange}
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                style={{ marginLeft: 8 }}
+                onClick={() => {
+                  const url = imagePreview || form.img_url
+                  if (url) window.open(url, '_blank', 'noopener,noreferrer')
+                }}
+                disabled={!imagePreview && !form.img_url}
+              >
+                Preview
+              </Button>
+            </div>
+          </div>
+          <div className="users-form-field users-form-field--full">
+            <InputField
+              label="Content"
+              name="blog_content"
+              value={form.blog_content}
+              onChange={(e) => setForm((f) => ({ ...f, blog_content: e.target.value }))}
+              textarea
+            />
+          </div>
+         
+          <div className="users-form-actions">
+            <Button type="button" variant="ghost" onClick={() => setModalOpen(false)} disabled={saving}>Cancel</Button>
+            <Button type="submit" variant="primary" disabled={saving}>{saving ? 'Saving…' : 'Save'}</Button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal open={!!deleteConfirm} onClose={() => { setDeleteConfirm(null); setDeleteError('') }} title="Delete blog?" size="sm">
+        {deleteConfirm && (
+          <>
+            <p>{deleteConfirm.blog_title}</p>
+            {deleteError && <div className="users-error users-error-inline">{deleteError}</div>}
+            <div className="ui-modal-actions">
+              <Button variant="ghost" onClick={() => { setDeleteConfirm(null); setDeleteError('') }} disabled={deleting}>Cancel</Button>
+              <Button variant="danger" onClick={() => handleDelete(deleteConfirm)} disabled={deleting}>{deleting ? 'Deleting…' : 'Delete'}</Button>
+            </div>
+          </>
+        )}
+      </Modal>
     </div>
   )
 }
