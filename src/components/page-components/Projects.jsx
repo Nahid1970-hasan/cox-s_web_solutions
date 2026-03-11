@@ -1,22 +1,18 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { toast } from 'react-toastify'
+import { apiUrl, API_PATHS } from '../../config/env'
 import '../../css/components/Projects.css'
-import img1 from '../../assets/img/ad.jpg'
-import img2 from '../../assets/img/d.jpg'
 
-const cardDetails = 'A modern web application delivering scalable solutions with focus on usability and performance. Built with clean architecture and best practices.'
-
-const cards = [
-  { image: img1, title: 'Project 1', details: cardDetails, url: 'https://example.com/project-1' },
-  { image: img2, title: 'Project 2', details: cardDetails, url: 'https://example.com/project-2' },
-  { image: img1, title: 'Project 3', details: cardDetails, url: 'https://example.com/project-3' },
-  { image: img2, title: 'Project 4', details: cardDetails, url: 'https://example.com/project-4' },
-  { image: img1, title: 'Project 5', details: cardDetails, url: 'https://example.com/project-5' },
-  { image: img2, title: 'Project 6', details: cardDetails, url: 'https://example.com/project-6' },
-  { image: img1, title: 'Project 7', details: cardDetails, url: 'https://example.com/project-7' },
-  { image: img2, title: 'Project 8', details: cardDetails, url: 'https://example.com/project-8' },
-  { image: img1, title: 'Project 9', details: cardDetails, url: 'https://example.com/project-9' },
-  { image: img2, title: 'Project 10', details: cardDetails, url: 'https://example.com/project-10' },
-]
+function mapPublicProject(p) {
+  return {
+    id: p.project_id ?? p.id,
+    title: String(p.project_name ?? ''),
+    date: p.date ?? p.created_at ?? p.created_date ?? '',
+    details: p.project_details ?? '',
+    url: p.project_link ?? '',
+    image: p.img_url ?? '',
+  }
+}
 
 function LinkIcon() {
   return (
@@ -31,6 +27,34 @@ function LinkIcon() {
 }
 
 export default function Projects() {
+  const [cards, setCards] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch(apiUrl(API_PATHS.PROJECTS_PUBLIC_LIST), {
+          method: 'GET',
+          credentials: 'include',
+        })
+        const data = await res.json().catch(() => ({}))
+        if (!res.ok) {
+          const msg = data.message || data.detail || 'Failed to load projects.'
+          toast.error(msg)
+          setLoading(false)
+          return
+        }
+        const list = Array.isArray(data) ? data : (data.results ?? [])
+        setCards((Array.isArray(list) ? list : []).map(mapPublicProject))
+      } catch (err) {
+        toast.error('Unable to load projects. Please try again.')
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [])
+
   return (
     <section id="projects" className="projects-page">
       <div className="container">
@@ -43,17 +67,31 @@ export default function Projects() {
         </div>
 
         <div className="projects-cards">
-          {cards.map((card, index) => (
-            <article key={index} className="project-card-simple">
+          {loading && cards.length === 0 && (
+            <div className="projects-loading">Loading projects…</div>
+          )}
+          {!loading && cards.length === 0 && (
+            <div className="projects-loading">No projects found.</div>
+          )}
+          {cards.map((card) => (
+            <article key={card.id} className="project-card-simple">
               <div className="project-card-simple-img" >
-                <img src={card.image} alt={card.title} />
+                {card.image ? (
+                  <img src={card.image} alt={card.title} />
+                ) : (
+                  <div className="project-card-simple-img-placeholder" />
+                )}
               </div>
               <div className="project-card-simple-details">
                 <h3>
-                  <a href={card.url} target="_blank" rel="noopener noreferrer" className="project-card-title-link">
-                    {card.title}
-                    <LinkIcon />
-                  </a>
+                  {card.url ? (
+                    <a href={card.url} target="_blank" rel="noopener noreferrer" className="project-card-title-link">
+                      {card.title}
+                      <LinkIcon />
+                    </a>
+                  ) : (
+                    card.title
+                  )}
                 </h3>
                 <p>{card.details}</p>
               </div>

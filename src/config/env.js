@@ -35,6 +35,8 @@ export const API_PATHS = {
   ADD_PROJECT: '/api/add_project/',
   updateProject: (id) => `/api/update_project/${id}/`,
   deleteProject: (id) => `/api/delete_project/${id}/`,
+  // Projects (public)
+  PROJECTS_PUBLIC_LIST: '/api/project_public_dashboard/',
   UPLOAD: '/api/upload/',
   // Blogs (admin)
   BLOGS_LIST: '/api/blogdashboard/',
@@ -42,6 +44,10 @@ export const API_PATHS = {
   ADD_BLOG: '/api/add_blog/',
   updateBlog: (id) => `/api/update_blog/${id}/`,
   deleteBlog: (id) => `/api/delete_blog/${id}/`,
+  // Contact
+  SAVE_CONTACTS: '/api/save_contacts/',
+  CONTACTS_LIST: '/api/contacts/',
+  deleteContact: (id) => `/api/delete_contacts/${id}/`,
 }
 
 export { API_BASE_URL }

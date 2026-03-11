@@ -2,7 +2,7 @@ import React from 'react'
 import '../../css/components/ui/InputField.css'
 
 /**
- * Reusable input/select field for forms.
+ * Reusable input/select/textarea field for forms.
  * @param {string} label
  * @param {string} type - 'text' | 'email' | 'password' | 'number'
  * @param {string} name
@@ -14,6 +14,8 @@ import '../../css/components/ui/InputField.css'
  * @param {boolean} required
  * @param {boolean} disabled
  * @param {boolean} search - show search icon
+ * @param {boolean} textarea - render as <textarea>
+ * @param {number} rows - textarea rows (default 4)
  * @param {array} options - for select: [{ value, label }]
  */
 export default function InputField({
@@ -28,6 +30,8 @@ export default function InputField({
   required = false,
   disabled = false,
   search = false,
+  textarea = false,
+  rows = 4,
   options,
   ...props
 }) {
@@ -43,7 +47,7 @@ export default function InputField({
         </label>
       )}
       <div className="ui-input-inner">
-        {search && <span className="ui-input-icon" aria-hidden>🔍</span>}
+        {search && !textarea && <span className="ui-input-icon" aria-hidden>🔍</span>}
         {isSelect ? (
           <select
             id={inputId}
@@ -59,6 +63,19 @@ export default function InputField({
               <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
           </select>
+        ) : textarea ? (
+          <textarea
+            id={inputId}
+            name={name}
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            disabled={disabled}
+            required={required}
+            rows={rows}
+            className="ui-input ui-input--textarea"
+            {...props}
+          />
         ) : (
           <input
             id={inputId}
@@ -78,4 +95,9 @@ export default function InputField({
       {error && <span className="ui-input-error">{error}</span>}
     </div>
   )
+}
+
+/** Convenience component: InputField with textarea=true. Same props as InputField (label, name, value, onChange, rows, placeholder, etc.). */
+export function TextareaField(props) {
+  return <InputField {...props} textarea />
 }

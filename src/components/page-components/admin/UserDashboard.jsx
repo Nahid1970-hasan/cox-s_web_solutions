@@ -255,30 +255,35 @@ export default function UserDashboard() {
       field: 'id',
       header: 'ID',
       width: '50px',
+      sortable: true,
       sortableBody: (rowData) => tableBodyTemp(rowData, 'id'),
     },
     {
       field: 'name',
       header: 'Name',
       width: '150px',
+      sortable: true,
       sortableBody: (rowData) => tableBodyTemp(rowData, 'name'),
     },
     {
       field: 'email',
       header: 'Email',
       width: '170px',
+      sortable: false,
       sortableBody: (rowData) => tableBodyTemp(rowData, 'email'),
     },
     {
       field: 'role',
       header: 'Role',
       width: '120px',
+      sortable: false,
       sortableBody: (rowData) => <span className="ui-table-badge">{rowData?.role ?? ''}</span>,
     },
     {
       field: 'status',
       header: 'Status',
       width: '120px',
+      sortable: false,
       sortableBody: (rowData) => {
         const s = rowData?.status ?? ''
         const label = s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : ''
@@ -289,6 +294,8 @@ export default function UserDashboard() {
       field: 'createdAt',
       header: 'Created',
       width: '150px',
+      sortable: true,
+      sortValue: (row) => row?.createdAt ?? '',
       sortableBody: (rowData) => dateBodyTemp(rowData, 'createdAt'),
     },
     // {
@@ -368,7 +375,7 @@ export default function UserDashboard() {
           )}
           
           <div className="users-form-actions">
-            <Button type="button" variant="ghost" onClick={() => setModalOpen(false)} disabled={saving}>Cancel</Button>
+            <Button type="button" variant="ghost" onClick={() => setModalOpen(false)} disabled={saving}>Reset</Button>
             <Button type="submit" variant="primary" disabled={saving}>{saving ? 'Saving…' : 'Save'}</Button>
           </div>
         </form>

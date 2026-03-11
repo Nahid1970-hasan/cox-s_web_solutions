@@ -2,16 +2,25 @@
   margin-bottom: 16px;
 }
 
+/* Tighter spacing when inside a modal */
+.ui-modal-body .ui-input-wrap {
+  margin-bottom: 8px;
+}
+
 .ui-input-wrap--error .ui-input {
   border-color: #dc2626;
 }
 
 .ui-input-label {
   display: block;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--color-dark-blue);
-  margin-bottom: 6px;
+  margin-bottom: 5px;
+}
+
+.ui-modal-body .ui-input-label {
+  margin-bottom: 3px;
 }
 
 .ui-input-required {
@@ -39,7 +48,7 @@
   padding: 10px 12px;
   font-size: 1rem;
   font-family: var(--font-sans);
-  border: 2px solid var(--color-gray-200);
+  border: 1.5px solid var(--color-gray-200);
   border-radius: var(--radius);
   background: var(--color-white);
   transition: border-color 0.2s;
@@ -62,6 +71,11 @@
 .ui-input--select {
   cursor: pointer;
   appearance: auto;
+}
+
+.ui-input--textarea {
+  min-height: 70px;
+  resize: vertical;
 }
 
 .ui-input-error {

@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { toast } from 'react-toastify'
-import { Button, InputField, Modal, Table, Pagination } from '../../ui'
+import { Button, InputField, Modal, Table, Pagination, TextareaField } from '../../ui'
 import { apiUrl, API_PATHS } from '../../../config/env'
 import { coreAxios } from '../../../config/axios'
 import '../../../css/components/Users.css'
 
-// Map API project/blog shape to table row shape
+const STATUS_OPTIONS = [
+  { value: 'incoming', label: 'Incoming' },
+  { value: 'ongoing', label: 'Ongoing' },
+  { value: 'completed', label: 'Completed' },
+]
+
+// Map API blog shape to table row shape
 function mapBlogFromApi(p) {
   return {
     id: p.blog_id ?? p.id,
@@ -15,6 +21,7 @@ function mapBlogFromApi(p) {
     blog_content: p.blog_content ?? '',
     blog_link: p.blog_link ?? '',
     img_url: p.img_url ?? '',
+    status: (p.status ?? p.blog_status ?? 'incoming').toLowerCase(),
   }
 }
 
@@ -47,6 +54,7 @@ export default function Blogs() {
     blog_content: '',
     blog_link: '',
     img_url: '',
+    status: 'incoming',
   })
   const [editLoading, setEditLoading] = useState(false)
   const [editError, setEditError] = useState('')
@@ -86,6 +94,7 @@ export default function Blogs() {
       blog_content: '',
       blog_link: '',
       img_url: '',
+      status: 'incoming',
     })
     setSaveError('')
     setModalOpen(true)
@@ -104,6 +113,7 @@ export default function Blogs() {
         blog_content: mapped.blog_content,
         blog_link: mapped.blog_link,
         img_url: mapped.img_url,
+        status: mapped.status || 'incoming',
       })
       setModalOpen(true)
     } catch (err) {
@@ -124,6 +134,7 @@ export default function Blogs() {
     formData.append('blog_content', form.blog_content.trim())
     formData.append('blog_link', form.blog_link.trim())
     formData.append('img_url', form.img_url.trim())
+    formData.append('status', (form.status || 'incoming').toLowerCase())
 
     setSaveError('')
     setSaving(true)
@@ -251,35 +262,21 @@ export default function Blogs() {
       field: 'id',
       header: 'ID',
       width: '60px',
+      sortable: true,
       sortableBody: (rowData) => tableBodyTemp(rowData, 'id'),
     },
     {
       field: 'blog_title',
       header: 'Title',
       width: '200px',
+      sortable: true,
       sortableBody: (rowData) => tableBodyTemp(rowData, 'blog_title'),
-    },
-    {
-      field: 'date',
-      header: 'Date',
-      width: '140px',
-      sortableBody: (rowData) => dateBodyTemp(rowData, 'date'),
-    },
-    {
-      field: 'blog_content',
-      header: 'Details',
-      width: '260px',
-      sortableBody: (rowData) => {
-        const v = rowData?.blog_content ?? ''
-        const text = String(v)
-        const truncated = text.length > 120 ? `${text.slice(0, 117)}...` : text
-        return truncated || '—'
-      },
     },
     {
       field: 'blog_link',
       header: 'Link',
-      width: '160px',
+      width: '220px',
+      sortable: false,
       sortableBody: (rowData) => {
         const url = rowData?.blog_link
         if (!url) return '—'
@@ -290,10 +287,45 @@ export default function Blogs() {
         )
       },
     },
+   
+    {
+      field: 'blog_content',
+      header: 'Details',
+      width: '260px',
+      sortable: false,
+      sortableBody: (rowData) => {
+        const v = rowData?.blog_content ?? ''
+        const text = String(v)
+        const truncated = text.length > 120 ? `${text.slice(0, 117)}...` : text
+        return truncated || '—'
+      },
+    },
+    {
+      field: 'date',
+      header: 'Date',
+      width: '140px',
+      sortable: true,
+      sortValue: (row) => row?.date ?? '',
+      sortableBody: (rowData) => dateBodyTemp(rowData, 'date'),
+    },
+    
+    {
+      field: 'status',
+      header: 'Status',
+      width: '120px',
+      sortable: false,
+      sortableBody: (rowData) => {
+        const s = rowData?.status ?? ''
+        const label = s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : ''
+        return <span className="ui-table-badge">{label}</span>
+      },
+    },
+    
     {
       field: 'img_url',
       header: 'Image',
       width: '160px',
+      sortable: false,
       sortableBody: (rowData) => {
         const url = rowData?.img_url
         if (!url) return '—'
@@ -384,6 +416,19 @@ export default function Blogs() {
             />
           </div>
           <div className="users-form-field">
+            <label htmlFor="blog-status" className="users-form-label">Status</label>
+            <select
+              id="blog-status"
+              value={form.status || 'incoming'}
+              onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
+              style={{ width: '100%', padding: '8px 12px', fontSize: '1rem', borderRadius: 4, border: '1px solid #ccc' }}
+            >
+              {STATUS_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+          </div>
+          <div className="users-form-field">
             <InputField
               label="Blog Link"
               name="blog_link"
@@ -393,11 +438,11 @@ export default function Blogs() {
               placeholder="https://example.com/blog"
             />
           </div>
-          <div className="users-form-field ">
-            <label htmlFor="project-image-file" className="users-upload-label">Upload Image</label>
-            <div>
+          <div className="users-form-field">
+            <label htmlFor="blog-image-file" className="users-upload-label">Upload Image</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <input
-                id="project-image-file"
+                id="blog-image-file"
                 type="file"
                 accept="image/*"
                 onChange={handleImageFileChange}
@@ -406,7 +451,6 @@ export default function Blogs() {
                 type="button"
                 variant="secondary"
                 size="sm"
-                style={{ marginLeft: 8 }}
                 onClick={() => {
                   const url = imagePreview || form.img_url
                   if (url) window.open(url, '_blank', 'noopener,noreferrer')
@@ -418,17 +462,16 @@ export default function Blogs() {
             </div>
           </div>
           <div className="users-form-field users-form-field--full">
-            <InputField
+            <TextareaField
               label="Content"
               name="blog_content"
               value={form.blog_content}
               onChange={(e) => setForm((f) => ({ ...f, blog_content: e.target.value }))}
-              textarea
             />
           </div>
          
           <div className="users-form-actions">
-            <Button type="button" variant="ghost" onClick={() => setModalOpen(false)} disabled={saving}>Cancel</Button>
+            <Button type="button" variant="ghost" onClick={() => setModalOpen(false)} disabled={saving}>Reset</Button>
             <Button type="submit" variant="primary" disabled={saving}>{saving ? 'Saving…' : 'Save'}</Button>
           </div>
         </form>

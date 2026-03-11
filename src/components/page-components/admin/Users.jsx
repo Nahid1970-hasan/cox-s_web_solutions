@@ -222,28 +222,62 @@ export default function Users() {
     }
     return (
       <div className="users-action-cell">
-        <Button variant="secondary" size="sm" onClick={openDropdown}>
-          Action ▾
-        </Button>
-        {open &&
-          createPortal(
-            <>
-              <div className="users-action-backdrop" onClick={() => setActionDropdown(null)} aria-hidden />
-              <div
-                className="users-action-dropdown users-action-dropdown--fixed"
-                style={{ left: actionDropdown.left, top: actionDropdown.top }}
-              >
-                <button type="button" onClick={() => { setActionDropdown(null); openEdit(actionDropdown.row); }}>
-                  Edit
-                </button>
-                <button type="button" className="users-action-delete" onClick={() => { setActionDropdown(null); setDeleteConfirm(actionDropdown.row); }}>
+      <Button variant="secondary" size="sm" onClick={openDropdown}>
+        Action ▾
+      </Button>
+    
+      {open &&
+        createPortal(
+          <>
+            <div className="users-action-backdrop" onClick={() => setActionDropdown(null)} aria-hidden />
+            <div
+              className="users-action-dropdown users-action-dropdown--fixed"
+              style={{ left: actionDropdown.left, top: actionDropdown.top }}
+            >
+              {/* Superadmin: Edit + Delete */}
+              {actionDropdown.row.role === 'superadmin' && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => { setActionDropdown(null); openEdit(actionDropdown.row); }}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    className="users-action-delete"
+                    onClick={() => { setActionDropdown(null); setDeleteConfirm(actionDropdown.row); }}
+                  >
+                    Delete
+                  </button>
+                </>
+              )}
+    
+              {/* Admin: Delete only */}
+              {actionDropdown.row.role === 'admin' && (
+                <button
+                  type="button"
+                  className="users-action-delete"
+                  onClick={() => { setActionDropdown(null); setDeleteConfirm(actionDropdown.row); }}
+                >
                   Delete
                 </button>
-              </div>
-            </>,
-            document.body
-          )}
-      </div>
+              )}
+    
+              {/* User: View only */}
+              {actionDropdown.row.role === 'user' && (
+                <button
+                  type="button"
+                  onClick={() => { setActionDropdown(null); openView(actionDropdown.row); }}
+                >
+                  View
+                </button>
+              )}
+            </div>
+          </>,
+          document.body
+        )}
+    </div>
     )
   }
 
@@ -253,30 +287,35 @@ export default function Users() {
       field: 'id',
       header: 'ID',
       width: '50px',
+      sortable: true,
       sortableBody: (rowData) => tableBodyTemp(rowData, 'id'),
     },
     {
       field: 'name',
       header: 'Name',
       width: '150px',
+      sortable: true,
       sortableBody: (rowData) => tableBodyTemp(rowData, 'name'),
     },
     {
       field: 'email',
       header: 'Email',
       width: '170px',
+      sortable: false,
       sortableBody: (rowData) => tableBodyTemp(rowData, 'email'),
     },
     {
       field: 'role',
       header: 'Role',
       width: '120px',
+      sortable: false,
       sortableBody: (rowData) => <span className="ui-table-badge">{rowData?.role ?? ''}</span>,
     },
     {
       field: 'status',
       header: 'Status',
       width: '120px',
+      sortable: false,
       sortableBody: (rowData) => {
         const s = rowData?.status ?? ''
         const label = s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : ''
@@ -287,6 +326,8 @@ export default function Users() {
       field: 'createdAt',
       header: 'Created',
       width: '150px',
+      sortable: true,
+      sortValue: (row) => row?.createdAt ?? '',
       sortableBody: (rowData) => dateBodyTemp(rowData, 'createdAt'),
     },
     {
@@ -315,7 +356,7 @@ export default function Users() {
 
   return (
     <div className="admin-users">
-    
+
       <div className="users-toolbar">
         <div className="users-toolbar-left">
           <Button variant="success" onClick={openNew}>+ New</Button>
@@ -369,9 +410,9 @@ export default function Users() {
               <InputField label="Password" name="password" type="password" value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} placeholder="Optional" />
             </div>
           )}
-          
+
           <div className="users-form-actions">
-            <Button type="button" variant="ghost" onClick={() => setModalOpen(false)} disabled={saving}>Cancel</Button>
+            <Button type="button" variant="ghost" onClick={() => setModalOpen(false)} disabled={saving}>Reset</Button>
             <Button type="submit" variant="primary" disabled={saving}>{saving ? 'Saving…' : 'Save'}</Button>
           </div>
         </form>

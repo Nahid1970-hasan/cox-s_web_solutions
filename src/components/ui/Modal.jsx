@@ -37,9 +37,19 @@ export default function Modal({ open, onClose, title, size = 'md', children, cla
         className={`ui-modal ui-modal--${size} ${className}`.trim()}
         onClick={(e) => e.stopPropagation()}
       >
-        {title && (
-          <h3 id="ui-modal-title" className="ui-modal-title">{title}</h3>
-        )}
+        <div className="ui-modal-header">
+          {title && (
+            <h3 id="ui-modal-title" className="ui-modal-title">{title}</h3>
+          )}
+          <button
+            type="button"
+            className="ui-modal-close"
+            onClick={onClose}
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
         <div className="ui-modal-body">
           {children}
         </div>

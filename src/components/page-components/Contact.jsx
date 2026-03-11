@@ -1,17 +1,44 @@
 import React, { useState } from 'react'
+import { toast } from 'react-toastify'
+import { apiUrl, API_PATHS } from '../../config/env'
 import '../../css/components/ContactSection.css'
 
 export default function Contact() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' })
+  const [sending, setSending] = useState(false)
 
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log('Submit:', formData)
+    if (sending) return
+    setSending(true)
+    try {
+      const res = await fetch(apiUrl(API_PATHS.SAVE_CONTACTS), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          message: formData.message.trim(),
+        }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        const msg = data.message || data.detail || 'Failed to send message. Please try again.'
+        toast.error(String(msg))
+        return
+      }
+      toast.success('Send message successfully.')
+      setFormData({ name: '', email: '', message: '' })
+    } catch (err) {
+      toast.error('Unable to connect. Please try again.')
+    } finally {
+      setSending(false)
+    }
   }
 
   return (
@@ -59,6 +86,7 @@ export default function Contact() {
               onChange={handleChange}
               required
               placeholder="Your name"
+              disabled={sending}
             />
           </div>
           <div className="form-group">
@@ -71,6 +99,7 @@ export default function Contact() {
               onChange={handleChange}
               required
               placeholder="Your email"
+              disabled={sending}
             />
           </div>
           <div className="form-group">
@@ -83,9 +112,12 @@ export default function Contact() {
               required
               rows={5}
               placeholder="Your message"
+              disabled={sending}
             />
           </div>
-          <button type="submit" className="btn btn-primary contact-submit">Send Message</button>
+          <button type="submit" className="btn btn-primary contact-submit" disabled={sending}>
+            {sending ? 'Sending...' : 'Send Message'}
+          </button>
         </form>
         </div>
       </div>

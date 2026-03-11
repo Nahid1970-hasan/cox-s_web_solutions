@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { toast } from 'react-toastify'
-import { Button, InputField, Modal, Table, Pagination } from '../../ui'
+import { Button, InputField, Modal, Table, Pagination, TextareaField } from '../../ui'
 import { apiUrl, API_PATHS } from '../../../config/env'
 import { coreAxios } from '../../../config/axios'
 import '../../../css/components/Users.css'
+
+const STATUS_OPTIONS = [
+  { value: 'incoming', label: 'Incoming' },
+  { value: 'ongoing', label: 'Ongoing' },
+  { value: 'completed', label: 'Completed' },
+]
 
 // Map API project shape to table row shape
 function mapProjectFromApi(p) {
@@ -15,6 +21,7 @@ function mapProjectFromApi(p) {
     project_details: p.project_details ?? '',
     project_link: p.project_link ?? '',
     img_url: p.img_url ?? '',
+    status: (p.status ?? p.project_status ?? 'incoming').toLowerCase(),
   }
 }
 
@@ -47,6 +54,7 @@ export default function Projects() {
     project_details: '',
     project_link: '',
     img_url: '',
+    status: 'incoming',
   })
   const [editLoading, setEditLoading] = useState(false)
   const [editError, setEditError] = useState('')
@@ -86,6 +94,7 @@ export default function Projects() {
       project_details: '',
       project_link: '',
       img_url: '',
+      status: 'incoming',
     })
     setSaveError('')
     setModalOpen(true)
@@ -104,6 +113,7 @@ export default function Projects() {
         project_details: mapped.project_details,
         project_link: mapped.project_link,
         img_url: mapped.img_url,
+        status: mapped.status || 'incoming',
       })
       setModalOpen(true)
     } catch (err) {
@@ -124,6 +134,7 @@ export default function Projects() {
     formData.append('project_details', form.project_details.trim())
     formData.append('project_link', form.project_link.trim())
     formData.append('img_url', form.img_url.trim())
+    formData.append('status', (form.status || 'incoming').toLowerCase())
 
     setSaveError('')
     setSaving(true)
@@ -252,25 +263,28 @@ export default function Projects() {
       field: 'id',
       header: 'ID',
       width: '60px',
+      sortable: true,
       sortableBody: (rowData) => tableBodyTemp(rowData, 'id'),
     },
     {
       field: 'project_name',
       header: 'Project Name',
       width: '200px',
+      sortable: true,
       sortableBody: (rowData) => tableBodyTemp(rowData, 'project_name'),
     },
     
     {
       field: 'project_link',
       header: 'Link',
-      width: '160px',
+      width: '190px',
+      sortable: false,
       sortableBody: (rowData) => {
         const url = rowData?.project_link
         if (!url) return '—'
         return (
           <a href={url} target="_blank" rel="noreferrer" className="ui-table-link">
-            {/* {rowData?.project_link} */} Click me to see the project
+            {/* {rowData?.project_link} */} Click to see the project
           </a>
         )
       },
@@ -288,27 +302,41 @@ export default function Projects() {
         },
       },
       {
+        field: 'status',
+        header: 'Status',
+        width: '150px',
+        sortable: false,
+        sortableBody: (rowData) => {
+          const s = rowData?.status ?? ''
+          const label = s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : ''
+          return <span className="ui-table-badge">{label}</span>
+        },
+      },
+      {
         field: 'date',
         header: 'Date',
         width: '140px',
+        sortable: true,
+        sortValue: (row) => row?.date ?? '',
         sortableBody: (rowData) => dateBodyTemp(rowData, 'date'),
       },
-    // {
-    //   field: 'img_url',
-    //   header: 'Image',
-    //   width: '160px',
-    //   sortableBody: (rowData) => {
-    //     const url = rowData?.img_url
-    //     if (!url) return '—'
-    //     return (
-    //       <img
-    //         src={url}
-    //         alt={rowData?.img_url || 'img_url'}
-    //         style={{ width: 48, height: 32, objectFit: 'cover', borderRadius: 4, display: 'block' }}
-    //       />
-    //     )
-    //   },
-    // },
+      {
+        field: 'img_url',
+        header: 'Image',
+        width: '160px',
+        sortable: true,
+        sortableBody: (rowData) => {
+          const url = rowData?.img_url
+          if (!url) return '—'
+          return (
+            <img
+              src={url}
+              alt={rowData?.project_name || 'Project image'}
+              style={{ width: 48, height: 32, objectFit: 'cover', borderRadius: 4, display: 'block' }}
+            />
+          )
+        },
+      },
     {
       field: 'action',
       header: 'Action',
@@ -404,6 +432,19 @@ export default function Projects() {
             />
           </div>
           <div className="users-form-field">
+            <label htmlFor="project-status" className="users-form-label">Status</label>
+            <select
+              id="project-status"
+              value={form.status || 'incoming'}
+              onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
+              style={{ width: '100%', padding: '8px 12px', fontSize: '1rem', borderRadius: 4, border: '1px solid #ccc' }}
+            >
+              {STATUS_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+          </div>
+          <div className="users-form-field">
             <InputField
               label="Project Link"
               name="project_link"
@@ -413,9 +454,19 @@ export default function Projects() {
               placeholder="https://example.com/project"
             />
           </div>
-          <div className="users-form-field ">
+         
+          <div className="users-form-field users-form-field--full">
+            <TextareaField
+              label="Project Details"
+              name="project_details"
+              value={form.project_details}
+              onChange={(e) => setForm((f) => ({ ...f, project_details: e.target.value }))}
+              textarea
+            />
+          </div>
+          <div className="users-form-field">
             <label htmlFor="project-image-file" className="users-upload-label">Upload Image</label>
-            <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <input
                 id="project-image-file"
                 type="file"
@@ -426,7 +477,6 @@ export default function Projects() {
                 type="button"
                 variant="secondary"
                 size="sm"
-                style={{ marginLeft: 8 }}
                 onClick={() => {
                   const url = imagePreview || form.img_url
                   if (url) window.open(url, '_blank', 'noopener,noreferrer')
@@ -437,28 +487,9 @@ export default function Projects() {
               </Button>
             </div>
           </div>
-          <div className="users-form-field users-form-field--full">
-            <InputField
-              label="Project Details"
-              name="project_details"
-              value={form.project_details}
-              onChange={(e) => setForm((f) => ({ ...f, project_details: e.target.value }))}
-              textarea
-            />
-          </div>
-          {/* <div className="users-form-field users-form-field--full">
-            <InputField
-              label="Image URL"
-              name="img_url"
-              type="url"
-              value={form.img_url}
-              onChange={(e) => setForm((f) => ({ ...f, img_url: e.target.value }))}
-              placeholder="https://example.com/image.jpg"
-            />
-          </div> */}
          
           <div className="users-form-actions">
-            <Button type="button" variant="ghost" onClick={() => setModalOpen(false)} disabled={saving}>Cancel</Button>
+            <Button type="button" variant="ghost" onClick={() => setModalOpen(false)} disabled={saving}>Reset</Button>
             <Button type="submit" variant="primary" disabled={saving}>{saving ? 'Saving…' : 'Save'}</Button>
           </div>
         </form>

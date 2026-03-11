@@ -27,6 +27,34 @@
   color: white;
 }
 
+.ui-table-sort-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ui-table-sort-header:hover {
+  opacity: 0.9;
+}
+
+.ui-table-sort-label {
+  flex: 1;
+}
+
+.ui-table-sort-icon {
+  opacity: 0.9;
+  font-size: 0.75em;
+}
+
 .ui-table tbody tr:hover {
   background: var(--color-gray-50);
 }

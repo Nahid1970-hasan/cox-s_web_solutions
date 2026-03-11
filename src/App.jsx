@@ -25,6 +25,7 @@ import Footer from './components/page-components/Footer'
 import UserDashboard from './components/page-components/admin/UserDashboard'
 import AdminProjects from './components/page-components/admin/Projects'
 import AdminBlogs from './components/page-components/admin/Blogs'
+import AdminContactInfo from './components/page-components/admin/ContactInfo'
 
 function HomePage() {
   return (
@@ -159,7 +160,7 @@ function AdminContactPage() {
   return (
     <div className="admin-content">
       <h2 className="admin-content-title">Contact</h2>
-      <Contact />
+      <AdminContactInfo />
     </div>
   )
 }
