@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { toast } from 'react-toastify'
 import { Button, Table, Pagination, Modal, InputField, TextareaField } from '../../ui'
 import { API_PATHS } from '../../../config/env'
@@ -45,6 +46,7 @@ export default function BillingInvoice() {
   const [modalOpen, setModalOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
+  const [actionDropdown, setActionDropdown] = useState(null)
   const [form, setForm] = useState({
     companyName: '',
     companyPhone: '',
@@ -65,6 +67,269 @@ export default function BillingInvoice() {
     balanceDue: '',
     termsConditions: '',
   })
+
+  const handleEditRow = (row) => {
+    toast.info(`Edit invoice #${row.id} coming soon.`)
+  }
+
+  const handleDeleteRow = (row) => {
+    toast.info(`Delete invoice #${row.id} coming soon.`)
+  }
+
+  const handleInvoiceRow = (row) => {
+    const safeRow = {
+      clientName: row.clientName || "Jack Little",
+      email: row.email || "jack.little@example.com",
+      phone: row.phone || "+1 (555) 123-4567",
+      project: row.project || "Web Design packages (Simple)",
+      amount: row.amount && !Number.isNaN(Number(row.amount)) ? Number(row.amount) : 19320,
+      id: row.id || "INV-000001",
+      createdAt: row.createdAt,
+    }
+
+    const invoiceDate = safeRow.createdAt ? new Date(safeRow.createdAt) : new Date()
+
+    const dateStr = invoiceDate.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    })
+
+    const amount = Number(safeRow.amount || 0)
+    const taxRate = 5
+    const taxAmount = (amount * taxRate) / 100
+    const total = amount + taxAmount
+
+    const html = `
+      <html>
+        <head>
+          <title>Invoice #${safeRow.id}</title>
+          <style>
+            * { box-sizing: border-box; }
+            body { font-family: Arial, sans-serif; margin: 0; padding: 32px 40px; color: #333; background: #ffffff; }
+            .invoice-toolbar { position: fixed; top: 16px; right: 24px; display: flex; gap: 8px; z-index: 1000; }
+            .invoice-toolbar button { padding: 6px 10px; font-size: 12px; border-radius: 4px; border: 1px solid #b15a17; background: #b15a17; color: #fff; cursor: pointer; }
+            .invoice-toolbar button.secondary { background: #fff; color: #b15a17; }
+            .top-bar { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; margin-top: 16px; }
+            .brand { display: flex; align-items: center; gap: 16px; }
+            .brand-circle { width: 56px; height: 56px; border-radius: 50%; background: #b15a17; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; }
+            .brand-text { font-size: 14px; line-height: 1.4; }
+            .brand-text strong { display: block; font-size: 16px; }
+            .company-address { text-align: right; font-size: 13px; line-height: 1.5; }
+            .title-row { text-align: center; margin: 16px 0 32px; font-size: 20px; letter-spacing: 1px; color: #b15a17; font-weight: 600; }
+            .meta-grid { display: flex; justify-content: space-between; gap: 32px; margin-bottom: 32px; }
+            .bill-ship { font-size: 13px; line-height: 1.5; }
+            .bill-ship-title { font-weight: 600; margin-bottom: 4px; }
+            .bill-name { font-weight: 700; margin-bottom: 2px; }
+            .invoice-meta-table { border-collapse: collapse; font-size: 12px; }
+            .invoice-meta-table th { background: #b15a17; color: #fff; padding: 6px 10px; text-align: left; font-weight: 600; }
+            .invoice-meta-table td { border: 1px solid #e3e3e3; padding: 6px 10px; }
+            .line-items { margin-top: 8px; border-collapse: collapse; width: 100%; font-size: 13px; }
+            .line-items th { background: #b15a17; color: #fff; padding: 8px 10px; text-align: left; font-weight: 600; }
+            .line-items td { border: 1px solid #e3e3e3; padding: 8px 10px; vertical-align: top; }
+            .line-items tbody tr:nth-child(even) { background: #fafafa; }
+            .note { font-size: 12px; margin-top: 16px; }
+            .totals-wrap { margin-top: 16px; display: flex; justify-content: flex-end; }
+            .totals { width: 260px; font-size: 13px; }
+            .totals-row { display: flex; justify-content: space-between; padding: 4px 0; }
+            .totals-row.total { font-weight: 700; font-size: 14px; margin-top: 4px; }
+            .balance-due { margin-top: 12px; background: #b15a17; color: #fff; padding: 8px 12px; display: flex; justify-content: space-between; font-weight: 700; font-size: 14px; }
+            .terms { font-size: 12px; margin-top: 24px; }
+            .terms-title { font-weight: 600; margin-bottom: 4px; }
+            @media print {
+              .invoice-toolbar { display: none; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="invoice-toolbar">
+            <button class="secondary" onclick="window.print()">Print</button>
+         
+          </div>
+          <div class="top-bar">
+            <div class="brand">
+              <img src={logo} alt="Cox's Web Solutions" style={{ width: '220px', height: 'auto' }} />
+            </div>
+            <div class="company-address">
+              Cox's Web Solutions<br/>
+              14B, Northern Street<br/>
+              Greater South Avenue<br/>
+              New York 10001<br/>
+              U.S.A
+            </div>
+          </div>
+
+          <div class="title-row">PROFORMA INVOICE</div>
+
+          <div class="meta-grid">
+            <div class="bill-ship">
+              <div class="bill-ship-title">Bill To</div>
+              <div class="bill-name">${safeRow.clientName}</div>
+              <div>${safeRow.email}</div>
+              <div>${safeRow.phone}</div>
+            </div>
+            <table class="invoice-meta-table">
+              <tr>
+                <th>Invoice#</th>
+                <td>${safeRow.id}</td>
+              </tr>
+              <tr>
+                <th>Invoice Date</th>
+                <td>${dateStr}</td>
+              </tr>
+              <tr>
+                <th>Terms</th>
+                <td>Due on Receipt</td>
+              </tr>
+              <tr>
+                <th>Due Date</th>
+                <td>${dateStr}</td>
+              </tr>
+            </table>
+          </div>
+
+          <table class="line-items">
+            <thead>
+              <tr>
+                <th style="width: 40px;">#</th>
+                <th>Item & Description</th>
+                <th style="width: 70px;">Qty</th>
+                <th style="width: 90px;">Rate</th>
+                <th style="width: 110px;">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>
+                  ${safeRow.project}
+                  <div style="font-size: 11px; color: #666; margin-top: 2px;">
+                    Auto-generated invoice based on contact record.
+                  </div>
+                </td>
+                <td>1.00</td>
+                <td>${amount.toFixed(2)}</td>
+                <td>${amount.toFixed(2)}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="note">
+            Thanks for your business.
+          </div>
+
+          <div class="totals-wrap">
+            <div class="totals">
+              <div class="totals-row">
+                <span>Sub Total</span>
+                <span>${amount.toFixed(2)}</span>
+              </div>
+              <div class="totals-row">
+                <span>Tax Rate</span>
+                <span>${taxRate.toFixed(1)}%</span>
+              </div>
+              <div class="totals-row total">
+                <span>Total</span>
+                <span>${total.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="balance-due">
+            <span>Balance Due</span>
+            <span>${total.toFixed(2)}</span>
+          </div>
+
+          <div style="margin-top: 32px; display: flex; justify-content: space-between; align-items: flex-end;">
+            <div class="terms" style="max-width: 60%; font-size: 12px;">
+              <div class="terms-title">Terms &amp; Conditions</div>
+              <div>All payments must be made in full before the commencement of any design work.</div>
+            </div>
+            <div style="width: 260px; text-align: right; font-size: 12px;">
+              <div style="height: 40px; border-bottom: 1px solid #999;"></div>
+              <div style="margin-top: 4px; font-weight: 600;">Founder Signature</div>
+              <div style="color: #666; margin-top: 2px;">Cox's Web Solutions</div>
+            </div>
+          </div>
+        </body>
+      </html>`
+
+    try {
+      const blob = new Blob([html], { type: 'text/html' })
+      const url = URL.createObjectURL(blob)
+      window.open(url, '_blank', 'noopener,noreferrer')
+    } catch (err) {
+      toast.error('Unable to open invoice preview.')
+    }
+  }
+
+  const renderActionCell = (rowData) => {
+    const open = actionDropdown && actionDropdown.id === rowData.id
+    const openDropdown = (e) => {
+      if (open) {
+        setActionDropdown(null)
+        return
+      }
+      const rect = e.currentTarget.getBoundingClientRect()
+      setActionDropdown({
+        id: rowData.id,
+        row: rowData,
+        left: rect.left,
+        top: rect.bottom + 4,
+      })
+    }
+    return (
+      <div className="users-action-cell">
+        <Button variant="secondary" size="sm" onClick={openDropdown}>
+        Invoice ▾
+        </Button>
+        {open &&
+          createPortal(
+            <>
+              <div
+                className="users-action-backdrop"
+                onClick={() => setActionDropdown(null)}
+                aria-hidden
+              />
+              <div
+                className="users-action-dropdown users-action-dropdown--fixed"
+                style={{ left: actionDropdown.left, top: actionDropdown.top }}
+              >
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActionDropdown(null)
+                    handleEditRow(actionDropdown.row)
+                  }}
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  className="users-action-delete"
+                  onClick={() => {
+                    setActionDropdown(null)
+                    handleDeleteRow(actionDropdown.row)
+                  }}
+                >
+                  Delete
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActionDropdown(null)
+                    handleInvoiceRow(actionDropdown.row)
+                  }}
+                >
+                  Invoice
+                </button>
+              </div>
+            </>,
+            document.body
+          )}
+      </div>
+    )
+  }
 
   useEffect(() => {
     const load = async () => {
@@ -230,6 +495,12 @@ export default function BillingInvoice() {
       sortable: true,
       sortValue: (row) => row?.createdAt ?? '',
       sortableBody: (rowData) => dateBodyTemp(rowData, 'createdAt'),
+    },
+    {
+      field: 'action',
+      header: 'Action',
+      width: '100px',
+      sortableBody: renderActionCell,
     },
   ]
 
