@@ -22,6 +22,16 @@
   font-weight: 700;
   color: var(--color-white);
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  display: block;
+  height: auto;
+  width: auto;
+  object-fit: contain;
+  max-height: 120px;
 }
 
 .nav-list {

@@ -8,7 +8,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 260px;
+  width: 200px;
   height: 100vh;
   background: var(--color-dark-blue);
   color: var(--color-white);
@@ -85,7 +85,7 @@
 .admin-main {
   flex: 1;
   min-height: 100vh;
-  margin-left: 260px;
+  margin-left: 200px; /* match .admin-sidebar width so content uses full remaining space */
   background: var(--color-gray-50);
   display: flex;
   flex-direction: column;

@@ -171,6 +171,18 @@
   border-top: 1px solid var(--color-gray-200);
 }
 
+.invoice-company-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 10px;
+  align-items: end;
+}
+
+.invoice-company-col input[type="file"],
+.invoice-company-logo input[type="file"] {
+  width: 100%;
+}
+
 /* Action column dropdown */
 .users-action-cell {
   position: relative;

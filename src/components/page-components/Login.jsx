@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { apiUrl, API_PATHS } from '../../config/env'
 import '../../css/components/Login.css'
+import logo from '../../assets/img/logo.jpeg'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -82,24 +83,16 @@ export default function Login() {
         <div className="login-layout">
           {/* Left: Illustration */}
           <div className="login-illustration">
-          <div className="login-shape login-shape--circle-top-left" />
-          <div className="login-shape login-shape--triangle-mid-left" />
-          <div className="login-shape login-shape--square-top" />
-          <div className="login-shape login-shape--triangle-top-right" />
-          <div className="login-shape login-shape--circle-bottom-right" />
-          <div className="login-shape login-shape--triangle-bottom-left" />
-          <div className="login-illustration-center">
-            <div className="login-laptop">
-              <div className="login-laptop-screen">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="login-user-silhouette">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-              </div>
-              <div className="login-laptop-base" />
+            <div className="login-shape login-shape--circle-top-left" />
+            <div className="login-shape login-shape--triangle-mid-left" />
+            <div className="login-shape login-shape--square-top" />
+            <div className="login-shape login-shape--triangle-top-right" />
+            <div className="login-shape login-shape--circle-bottom-right" />
+            <div className="login-shape login-shape--triangle-bottom-left" />
+            <div className="login-illustration-center">
+              <img src={logo} alt="Cox Web Solutions logo" className="login-illustration-logo" />
             </div>
           </div>
-        </div>
 
         {/* Right: Form */}
         <div className="login-form-section">

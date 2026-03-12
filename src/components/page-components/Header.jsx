@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import '../../css/components/Header.css'
+import logo from '../../assets/img/navbar.png'
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -16,7 +17,9 @@ export default function Header() {
   return (
     <header className="header">
       <div className="header-inner container">
-        <Link to="/" className="logo">Cox's Web Solutions</Link>
+        <Link to="/" className="logo">
+        <img src={logo} alt="Cox's Web Solutions" style={{ width: '220px', height: 'auto' }} />
+        </Link>
         <nav className={`nav ${menuOpen ? 'nav-open' : ''}`}>
           <ul className="nav-list">
             {navLinks.map((link) => (

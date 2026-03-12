@@ -9,8 +9,9 @@ import '../../css/components/ui/Modal.css'
  * @param {string} size - 'sm' | 'md' | 'lg'
  * @param {React.ReactNode} children
  * @param {string} className
+ * @param {string|number} width - optional custom max-width (e.g. "720px" or 720)
  */
-export default function Modal({ open, onClose, title, size = 'md', children, className = '' }) {
+export default function Modal({ open, onClose, title, size = 'md', children, className = '', width }) {
   useEffect(() => {
     if (open) {
       const handleEscape = (e) => { if (e.key === 'Escape') onClose() }
@@ -35,6 +36,7 @@ export default function Modal({ open, onClose, title, size = 'md', children, cla
     >
       <div
         className={`ui-modal ui-modal--${size} ${className}`.trim()}
+        style={width != null ? { maxWidth: typeof width === 'number' ? `${width}px` : width } : undefined}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="ui-modal-header">

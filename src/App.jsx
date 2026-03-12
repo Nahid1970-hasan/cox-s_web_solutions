@@ -26,6 +26,8 @@ import UserDashboard from './components/page-components/admin/UserDashboard'
 import AdminProjects from './components/page-components/admin/Projects'
 import AdminBlogs from './components/page-components/admin/Blogs'
 import AdminContactInfo from './components/page-components/admin/ContactInfo'
+import AdminClientInfo from './components/page-components/admin/ClientInfo'
+import AdminBillingInvoice from './components/page-components/admin/BillingInvoice'
 
 function HomePage() {
   return (
@@ -113,6 +115,8 @@ function App() {
           <Route path="usersetup" element={<UserSetupPage />} />
           <Route path="projects" element={<AdminProjectsPage />} />
           <Route path="blogs" element={<AdminBlogsPage />} />
+          <Route path="clientinfo" element={<AdminClientInfoPage />} />
+          <Route path="billinginvoice" element={<AdminBillingInvoicePage />} />
           <Route path="contact" element={<AdminContactPage />} />
         </Route>
       </Routes>
@@ -161,6 +165,24 @@ function AdminContactPage() {
     <div className="admin-content">
       <h2 className="admin-content-title">Contact</h2>
       <AdminContactInfo />
+    </div>
+  )
+}
+
+function AdminClientInfoPage() {
+  return (
+    <div className="admin-content">
+      <h2 className="admin-content-title">Client Info</h2>
+      <AdminClientInfo />
+    </div>
+  )
+}
+
+function AdminBillingInvoicePage() {
+  return (
+    <div className="admin-content">
+      <h2 className="admin-content-title">Billing Invoice</h2>
+      <AdminBillingInvoice />
     </div>
   )
 }

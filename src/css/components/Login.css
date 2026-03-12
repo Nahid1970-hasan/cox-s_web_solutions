@@ -45,6 +45,14 @@
   border-radius: 50%;
 }
 
+.login-illustration-logo {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #ffffff;
+}
+
 .login-laptop {
   display: flex;
   flex-direction: column;
