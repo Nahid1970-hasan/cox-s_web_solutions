@@ -27,6 +27,7 @@ export default function AdminDashboard() {
           <Link to="/admin/blogs" className={`admin-nav-item ${path.startsWith('/admin/blogs') ? 'active' : ''}`}>Blogs</Link>
           <Link to="/admin/clientinfo" className={`admin-nav-item ${path.startsWith('/admin/clientinfo') ? 'active' : ''}`}>Client Info</Link>
           <Link to="/admin/billinginvoice" className={`admin-nav-item ${path.startsWith('/admin/billinginvoice') ? 'active' : ''}`}>Billing Invoice</Link>
+          {/* <Link to="/admin/companyinfo" className={`admin-nav-item ${path.startsWith('/admin/companyinfo') ? 'active' : ''}`}>Company Info</Link> */}
           <Link to="/admin/contact" className={`admin-nav-item ${path.startsWith('/admin/contact') ? 'active' : ''}`}>Contact</Link>
         </nav>
         <div className="admin-sidebar-footer">

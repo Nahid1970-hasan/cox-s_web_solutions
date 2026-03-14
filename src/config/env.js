@@ -48,6 +48,19 @@ export const API_PATHS = {
   SAVE_CONTACTS: '/api/save_contacts/',
   CONTACTS_LIST: '/api/contacts/',
   deleteContact: (id) => `/api/delete_contacts/${id}/`,
+  // Invoices
+  INVOICES_LIST: '/api/invoices/',
+  invoiceDetail: (id) => `/api/invoices/${id}/`,
+  invoiceGenerate: (id) => `/api/invoice_generate/${id}/`,
+  ADD_INVOICE: '/api/add_invoice/',
+  updateInvoice: (id) => `/api/update_invoice/${id}/`,
+  deleteInvoice: (id) => `/api/delete_invoice/${id}/`,
+  // Company Info
+  COMPANYINFO_LIST: '/api/companyinfo/',
+  companyinfoDetail: (id) => `/api/companyinfo/${id}/`,
+  ADD_COMPANYINFO: '/api/add_companyinfo/',
+  updateCompanyInfo: (id) => `/api/update_companyinfo/${id}/`,
+  deleteCompanyInfo: (id) => `/api/delete_companyinfo/${id}/`,
 }
 
 export { API_BASE_URL }

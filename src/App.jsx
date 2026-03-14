@@ -28,6 +28,7 @@ import AdminBlogs from './components/page-components/admin/Blogs'
 import AdminContactInfo from './components/page-components/admin/ContactInfo'
 import AdminClientInfo from './components/page-components/admin/ClientInfo'
 import AdminBillingInvoice from './components/page-components/admin/BillingInvoice'
+import AdminCompanyInfo from './components/page-components/admin/CompanyInfo'
 
 function HomePage() {
   return (
@@ -117,6 +118,7 @@ function App() {
           <Route path="blogs" element={<AdminBlogsPage />} />
           <Route path="clientinfo" element={<AdminClientInfoPage />} />
           <Route path="billinginvoice" element={<AdminBillingInvoicePage />} />
+          <Route path="companyinfo" element={<AdminCompanyInfoPage />} />
           <Route path="contact" element={<AdminContactPage />} />
         </Route>
       </Routes>
@@ -183,6 +185,15 @@ function AdminBillingInvoicePage() {
     <div className="admin-content">
       <h2 className="admin-content-title">Billing Invoice</h2>
       <AdminBillingInvoice />
+    </div>
+  )
+}
+
+function AdminCompanyInfoPage() {
+  return (
+    <div className="admin-content">
+      <h2 className="admin-content-title">Company Info</h2>
+      <AdminCompanyInfo />
     </div>
   )
 }
