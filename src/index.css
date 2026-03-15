@@ -28,6 +28,7 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
@@ -37,6 +38,7 @@ body {
   color: var(--color-gray-800);
   background: var(--color-white);
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 img {
@@ -123,4 +125,19 @@ button {
 .btn-dark {
   background: var(--color-dark-blue);
   color: var(--color-white);
+}
+
+/* ===== Mobile view (useMediaQuery / ViewportContext) – applied to body.viewport-mobile ===== */
+body.viewport-mobile .container {
+  padding-left: 16px;
+  padding-right: 16px;
+  max-width: 100%;
+}
+
+body.viewport-mobile .section-title {
+  margin-bottom: 32px;
+}
+
+body.viewport-mobile .section-title h2 {
+  font-size: 1.5rem;
 }

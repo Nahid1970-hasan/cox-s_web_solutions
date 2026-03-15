@@ -2,6 +2,7 @@ import React from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { ViewportProvider } from './context/ViewportContext'
 import Header from './components/page-components/Header'
 import Hero from './components/page-components/Hero'
 import ServicesGrid from './components/page-components/ServicesGrid'
@@ -102,7 +103,7 @@ function LoginPage() {
 
 function App() {
   return (
-    <>
+    <ViewportProvider>
       <ToastContainer position="top-right" autoClose={4000} closeOnClick pauseOnHover theme="light" />
       <Routes>
         <Route path="/" element={<HomePage />} />
@@ -122,7 +123,7 @@ function App() {
           <Route path="contact" element={<AdminContactPage />} />
         </Route>
       </Routes>
-    </>
+    </ViewportProvider>
   )
 }
 

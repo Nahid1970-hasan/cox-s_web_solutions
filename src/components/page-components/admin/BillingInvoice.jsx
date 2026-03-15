@@ -111,7 +111,7 @@ function mapInvoiceDetailToForm(api) {
     clientPhone: api.client_phone ?? '',
     clientAddress: api.client_address ?? '',
     unitPrice: String(api.unit_price ?? ''),
-    totalPrice: String(api.total_price ?? ''),
+    totalPrice: calcTotalPrice(api.unit_price, api.discount) || String(api.total_price ?? ''),
     billingDescription: api.billing_description ?? '',
     invoiceDate: toDateInputValue(api.invoice_date),
     subtotal: String(api.subtotal ?? ''),
@@ -120,8 +120,11 @@ function mapInvoiceDetailToForm(api) {
   }
 }
 
-/** Build API payload (snake_case) from form state. Omits undefined/null. */
+/** Build API payload (snake_case) from form state. total_price is computed from unitPrice and discount. */
 function formToApiPayload(form) {
+  const unitPrice = form.unitPrice ?? form.subtotal ?? ''
+  const discount = form.discount ?? ''
+  const calculatedTotal = calcTotalPrice(unitPrice, discount)
   const raw = {
     own_com_name: form.ownComName || undefined,
     own_com_title: form.ownComTitle || undefined,
@@ -132,7 +135,7 @@ function formToApiPayload(form) {
     client_phone: form.clientPhone || undefined,
     client_address: form.clientAddress || undefined,
     unit_price: form.unitPrice || undefined,
-    total_price: form.totalPrice || undefined,
+    total_price: calculatedTotal || form.totalPrice || undefined,
     billing_description: form.billingDescription || undefined,
     invoice_date: form.invoiceDate || undefined,
     subtotal: form.subtotal || undefined,
@@ -151,13 +154,13 @@ function parseNum(v) {
   return Number.isNaN(n) ? 0 : n
 }
 
-/** Calculate total_price from subtotal and discount %: total = subtotal × (1 − discount/100). */
-function calcTotalPrice(subtotal, discountPercent) {
-  const sub = parseNum(subtotal)
+/** Calculate total_price from unit price (or subtotal) and discount %: total = unitPrice × (1 − discount/100). */
+function calcTotalPrice(unitPriceOrSubtotal, discountPercent) {
+  const sub = parseNum(unitPriceOrSubtotal)
   const pct = Math.min(100, Math.max(0, parseNum(discountPercent)))
   const total = sub * (1 - pct / 100)
   const rounded = Math.max(0, Math.round(total * 100) / 100)
-  return sub === 0 && pct === 0 ? '' : rounded.toFixed(2)
+  return sub === 0 && pct === 0 ? '' : String(rounded.toFixed(2))
 }
 
 const tableBodyTemp = (rowData, field) => {
@@ -266,9 +269,9 @@ export default function BillingInvoice() {
     setDeleting(true)
     try {
       await coreAxios.delete(API_PATHS.deleteInvoice(deleteConfirm.id))
-      setRows((prev) => prev.filter((r) => r.id !== deleteConfirm.id))
       setDeleteConfirm(null)
       toast.success('Invoice deleted successfully.')
+      await loadList()
     } catch (err) {
       const msg =
         err.response?.status === 404
@@ -324,6 +327,11 @@ export default function BillingInvoice() {
   const pdfFormToSafeRow = (f, invoiceId) => {
     const id = String(invoiceId ?? f?.invoice_no ?? 'INV-000001')
     const defaultCompany = 'COX WEB SOLUTIONS'
+    const unitPrice = Number(f?.unitPrice) || Number(f?.subtotal) || 0
+    const discount = Number(f?.discount) || 0
+    const calculatedTotal = calcTotalPrice(f?.unitPrice ?? f?.subtotal, f?.discount)
+    const totalPrice = calculatedTotal !== '' ? Number(calculatedTotal) : (Number(f?.totalPrice) || 0)
+    const subtotal = unitPrice
     return {
       invoice_id: id,
       invoice_no: (f?.invoice_no ?? id).toString(),
@@ -335,10 +343,10 @@ export default function BillingInvoice() {
       clientPhone: f?.clientPhone ?? '',
       clientAddress: f?.clientAddress ?? '',
       billingDescription: f?.billingDescription ?? '',
-      unitPrice: Number(f?.unitPrice) || 0,
-      subtotal: Number(f?.subtotal) || 0,
-      discount: Number(f?.discount) || 0,
-      totalPrice: Number(f?.totalPrice) || 0,
+      unitPrice,
+      subtotal,
+      discount,
+      totalPrice,
       invoiceDate: f?.invoiceDate ?? '',
       createdAt: f?.invoiceDate ?? f?.createdAt ?? '',
       logoUrl: f?.ownComLogoUrl ?? '',
@@ -346,14 +354,13 @@ export default function BillingInvoice() {
   }
 
   const buildPdfHtml = (safeRow, logoImgSrc) => {
-    const amount = safeRow.totalPrice > 0 ? safeRow.totalPrice : (safeRow.subtotal > 0 ? safeRow.subtotal : safeRow.unitPrice) || 0
     const invoiceDate = (safeRow.invoiceDate || safeRow.createdAt) ? new Date(safeRow.invoiceDate || safeRow.createdAt) : new Date()
     const dateStr = invoiceDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
     const monthYearStr = invoiceDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
-    const unitPriceVal = safeRow.unitPrice > 0 ? safeRow.unitPrice : amount
-    const subtotalVal = Number(safeRow.totalPrice) || 0
+    const unitPriceVal = Number(safeRow.unitPrice) || 0
+    const subtotalVal = unitPriceVal
     const discountPercent = Number(safeRow.discount) || 0
-    const totalPayable = subtotalVal
+    const totalPayable = safeRow.totalPrice > 0 ? safeRow.totalPrice : (parseFloat(calcTotalPrice(safeRow.unitPrice, safeRow.discount)) || 0)
     const logoHtml = logoImgSrc
       ? `<img src="${logoImgSrc}" alt="${safeRow.ownComName}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" />`
       : `<span class="logo-c">C</span><span>${safeRow.ownComName}</span><span>${safeRow.ownComTitle}</span>`
@@ -363,7 +370,7 @@ export default function BillingInvoice() {
           <title>Invoice #${safeRow.invoice_no}</title>
           <style>
             * { box-sizing: border-box; }
-            body { font-family: Arial, sans-serif; margin: 0; padding: 32px 40px; color: #333; background: #fff; }
+            body { font-family: Arial, sans-serif; margin: 0; padding: 30px 40px; color: #333; background: #fff; }
             .invoice-toolbar { position: fixed; top: 16px; right: 24px; display: flex; gap: 8px; z-index: 1000; }
             .invoice-toolbar button { padding: 6px 12px; font-size: 12px; border-radius: 4px; border: 1px solid #1e3a5f; background: #1e3a5f; color: #fff; cursor: pointer; }
             .invoice-toolbar button.secondary { background: #fff; color: #1e3a5f; }
@@ -375,12 +382,23 @@ export default function BillingInvoice() {
             .logo-box { width: 150px; height: 150px; border-radius: 50%; background:#a0522d; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 10px; font-size: 10px; line-height: 1.3; overflow: hidden; flex-shrink: 0; }
             .logo-box .logo-c { font-size: 28px; font-weight: 700; margin-bottom: 2px; }
             .logo-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 5%; }
+            .invoice-top-row { display: flex; align-items: stretch; gap: 24px; margin-bottom: 24px; width: 100%; }
+            .bill-same-box { border: 1px solid #000; flex: 0 1 auto; max-width: 520px; min-width: 0; }
+            .bill-same-row { display: flex; align-items: stretch; min-height: 100%; }
+            .bill-same-half { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+            .bill-same-half:first-child .bill-same-head { border-right: 1px solid #000; }
+            .bill-same-half:first-child .bill-same-body { border-right: 1px solid #000; flex: 1; min-height: 0; }
+            .bill-same-half:last-child .bill-same-body { flex: 1; min-height: 0; }
+            .bill-same-head { background: #a0522d; color: #fff; font-weight: 700; font-size: 14px; padding: 10px 14px; text-align: center; -webkit-print-color-adjust: exact; print-color-adjust: exact; flex-shrink: 0; }
+            .bill-same-body { padding: 14px; font-size: 13px; line-height: 1.7; color: #000; border-top: 1px solid #000; }
+            .bill-same-line { margin: 0 0 4px 0; }
+            .invoice-details-wrap { flex: 0 0 auto; min-width: 240px; margin-left: auto; }
             .bill-invoice-wrap { display: flex; justify-content: space-between; align-items: flex-start; gap: 40px; margin-bottom: 24px; }
             .bill-to-block { flex: 1; max-width: 50%; }
-            .bill-to-header { background: #a0522d; color: #000; font-weight: 700; font-size: 14px; padding: 10px 14px; text-align: center; border: 1px solid #000; margin-bottom: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .bill-to-header { background: #a0522d; color: #fff; font-weight: 700; font-size: 14px; padding: 10px 14px; text-align: center; border: 1px solid #000; margin-bottom: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .bill-to-content { padding: 14px; border: 1px solid #000; border-top: none; font-size: 13px; line-height: 1.7; color: #000; }
             .bill-to-content .bill-to-line { margin: 0 0 4px 0; }
-            .invoice-meta-table { border-collapse: collapse; font-size: 13px; min-width: 260px; border: 1px solid #ddd; }
+            .invoice-meta-table { border-collapse: collapse; font-size: 13px; width: 100%; border: 1px solid #ddd; }
             .invoice-meta-table th { background: #a0522d; color: #fff; padding: 10px 14px; text-align: left; font-weight: 700; border: 1px solid #8b4512; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .invoice-meta-table td { background: #fff; color: #444; padding: 10px 14px; border: 1px solid #ddd; }
             .service-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
@@ -389,14 +407,14 @@ export default function BillingInvoice() {
             .totals-box { margin-top: 20px; text-align: right; width: 280px; margin-left: auto; font-size: 13px; }
             .totals-box .row { display: flex; justify-content: space-between; padding: 4px 0; }
             .totals-box .row.total { font-weight: 700; font-size: 14px; margin-top: 6px; padding-top: 6px; border-top: 1px solid #333; }
-            .signature-section { margin-top: 32px; }
-            .signature-line { width: 100%; max-width: 280px; height: 0; border: none; border-bottom: 2px solid #000; margin-bottom: 16px; }
-            .signature-label { font-weight: 700; font-size: 13px; margin-bottom: 8px; }
+            .signature-section { padding:0 20px;}
+            .signature-line { width: 100%; max-width: 280px; height: 0; border: none; border-bottom: 1.5px solid #000; margin-bottom: 10px; }
+            .signature-label { font-weight: 700; font-size: 13px; margin-bottom: 5px; }
             .signature-details { font-size: 13px; line-height: 1.6; }
             @media print {
               .invoice-toolbar { display: none !important; }
               body { background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-              .bill-to-header { background: #a0522d !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+              .bill-same-head, .bill-to-header { background: #a0522d !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
               .invoice-meta-table th { background: #a0522d !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
               .service-table thead th { background: #a0522d !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             }
@@ -419,31 +437,44 @@ export default function BillingInvoice() {
             </div>
           </div>
 
-          <div class="bill-invoice-wrap">
-            <div class="bill-to-block">
-              <div class="bill-to-header">Bill To:</div>
-              <div class="bill-to-content">
-                <div class="bill-to-line">Client Name: ${safeRow.clientName || '—'}</div>
-                <div class="bill-to-line">Company Name: ${safeRow.clientCompany || '—'}</div>
-                <div class="bill-to-line">Phone: ${safeRow.clientPhone || '—'}</div>
-                <div class="bill-to-line">Address: ${safeRow.clientAddress || '—'}</div>
+          <div class="invoice-top-row">
+            <div class="bill-same-box">
+              <div class="bill-same-row">
+              <div class="bill-same-half">
+                  <div class="bill-same-head">Bill From:</div>
+                  <div class="bill-same-body">
+                    <div class="bill-same-line">Company Name: ${safeRow.ownComName || '—'}</div>
+                    <div class="bill-same-line">Phone: ${safeRow.ownComPhone || '8801840452081'}</div>
+                  </div>
+                </div>
+                <div class="bill-same-half">
+                  <div class="bill-same-head">Bill To:</div>
+                  <div class="bill-same-body">
+                    <div class="bill-same-line">Client Name: ${safeRow.clientName || '—'}</div>
+                    <div class="bill-same-line">Company Name: ${safeRow.clientCompany || '—'}</div>
+                    <div class="bill-same-line">Phone: ${safeRow.clientPhone || '—'}</div>
+                    <div class="bill-same-line">Address: ${safeRow.clientAddress || '—'}</div>
+                  </div>
+                </div>
+                
               </div>
             </div>
-            <table class="invoice-meta-table">
-              <tr>
-                <th>Invoice#</th>
-                <td>${safeRow.invoice_no}</td>
-              </tr>
-              <tr>
-                <th>Invoice Date</th>
-                <td>${dateStr}</td>
-              </tr>
-              <tr>
-                <th>Terms</th>
-                <td>Due on Receipt</td>
-              </tr>
-             
-            </table>
+            <div class="invoice-details-wrap">
+              <table class="invoice-meta-table">
+                <tr>
+                  <th>Invoice#</th>
+                  <td>${safeRow.invoice_no}</td>
+                </tr>
+                <tr>
+                  <th>Invoice Date</th>
+                  <td>${dateStr}</td>
+                </tr>
+                <tr>
+                  <th>Terms</th>
+                  <td>Due on Receipt</td>
+                </tr>
+              </table>
+            </div>
           </div>
 
           <table class="service-table">
@@ -462,7 +493,7 @@ export default function BillingInvoice() {
                 <td>${safeRow.billingDescription || 'Services'}</td>
                 <td>${monthYearStr}</td>
                 <td>${unitPriceVal.toFixed(2)}</td>
-                <td>${subtotalVal.toFixed(2)}</td>
+                <td>${totalPayable.toFixed(2)}</td>
               </tr>
             </tbody>
           </table>
@@ -476,7 +507,7 @@ export default function BillingInvoice() {
 
           <div class="signature-section">
             <div class="signature-line"></div>
-            <div class="signature-label">Signature:</div>
+            <div class="signature-label">Signature</div>
             <div class="signature-details">
               <div>Ahad Noor Sobhan Zihadi</div>
               <div>Managing Director</div>
@@ -486,6 +517,46 @@ export default function BillingInvoice() {
           </div>
         </body>
       </html>`
+  }
+
+  /** Open generated PDF in new window (no modal). Used when clicking invoice_no in table. */
+  const handleOpenPdfForRow = async (row) => {
+    const invoiceId = row.invoice_id ?? row.id
+    if (invoiceId == null && invoiceId !== 0) {
+      toast.error('Invalid invoice: missing invoice_id')
+      return
+    }
+    const loadingToast = toast.loading('Loading invoice PDF…')
+    try {
+      const { data } = await coreAxios.get(API_PATHS.invoiceGenerate(invoiceId))
+      const raw = data != null && typeof data === 'object' && (data.data ?? data.invoice ?? data.result)
+        ? (data.data ?? data.invoice ?? data.result)
+        : data
+      if (!raw || typeof raw !== 'object') {
+        toast.dismiss(loadingToast)
+        toast.error('Invalid response from invoice generate API')
+        return
+      }
+      const form = mapInvoiceDetailToForm(raw)
+      const safeRow = pdfFormToSafeRow(form, invoiceId)
+      let logoImgSrc = null
+      const logoSource = safeRow.logoUrl || logoJpeg
+      if (logoSource) {
+        logoImgSrc = await fetchImageAsDataUrl(logoSource)
+        if (!logoImgSrc && safeRow.logoUrl) logoImgSrc = await fetchImageAsDataUrl(logoJpeg)
+      }
+      if (!logoImgSrc && logoJpeg) logoImgSrc = logoJpeg
+      const html = buildPdfHtml(safeRow, logoImgSrc)
+      const blob = new Blob([html], { type: 'text/html' })
+      window.open(URL.createObjectURL(blob), '_blank', 'noopener,noreferrer')
+      toast.dismiss(loadingToast)
+    } catch (err) {
+      toast.dismiss(loadingToast)
+      const msg = err.response?.status === 404
+        ? 'Invoice not found'
+        : err.response?.data?.message ?? err.response?.data?.detail ?? err.message ?? 'Failed to load invoice PDF'
+      toast.error(Array.isArray(msg) ? msg.join(' ') : String(msg))
+    }
   }
 
   const handleGeneratePdfFromModal = async () => {
@@ -520,9 +591,7 @@ export default function BillingInvoice() {
       setPdfModalOpen(false)
       setPdfModalInvoiceId(null)
       setPdfForm(null)
-      const { data } = await coreAxios.get(API_PATHS.INVOICES_LIST)
-      const list = Array.isArray(data) ? data : (data && Array.isArray(data.results)) ? data.results : []
-      setRows(list.map((item) => mapApiToInvoice(item)))
+      await loadList()
     } catch (err) {
       const msg = err.response?.data?.message ?? err.response?.data?.detail ?? err.message ?? 'Failed to update invoice'
       toast.error(Array.isArray(msg) ? msg.join(' ') : String(msg))
@@ -600,36 +669,45 @@ export default function BillingInvoice() {
     )
   }
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const { data } = await coreAxios.get(API_PATHS.INVOICES_LIST)
-        const list = Array.isArray(data)
-          ? data
-          : (data && Array.isArray(data.results))
-            ? data.results
-            : []
-        const mapped = list.map((item) => mapApiToInvoice(item))
-        setRows(mapped)
-        setLoadError('')
-      } catch (err) {
-        setRows([])
-        const status = err.response?.status
-        const msg =
-          status === 404
-            ? 'Invoice API not found. Table is empty until the backend provides /api/invoices/.'
-            : err.response?.data?.message ??
-              err.response?.data?.detail ??
-              err.message ??
-              'Failed to load invoices'
-        const text = Array.isArray(msg) ? msg.join(' ') : String(msg)
-        setLoadError(text)
-        if (status !== 404) toast.error(text)
-      } finally {
-        setLoading(false)
+  const loadList = async () => {
+    try {
+      const { data } = await coreAxios.get(API_PATHS.INVOICES_LIST)
+      let list = []
+      if (data != null) {
+        if (Array.isArray(data)) {
+          list = data
+        } else if (typeof data === 'object') {
+          if (Array.isArray(data.results)) list = data.results
+          else if (Array.isArray(data.data)) list = data.data
+          else if (Array.isArray(data.items)) list = data.items
+          else if (Array.isArray(data.invoices)) list = data.invoices
+          else list = []
+        }
       }
+      const mapped = list.map((item) => mapApiToInvoice(item))
+      setRows(mapped)
+      setLoadError('')
+    } catch (err) {
+      setRows([])
+      const status = err.response?.status
+      const msg =
+        status === 404
+          ? 'Invoice API not found. Table is empty until the backend provides /api/invoices/.'
+          : err.response?.data?.message ??
+            err.response?.data?.detail ??
+            err.message ??
+            'Failed to load invoices'
+      const text = Array.isArray(msg) ? msg.join(' ') : String(msg)
+      setLoadError(text)
+      if (status !== 404) toast.error(text)
+    } finally {
+      setLoading(false)
     }
-    load()
+  }
+
+  useEffect(() => {
+    setLoading(true)
+    loadList()
   }, [])
 
   const totalPages = Math.max(1, Math.ceil(rows.length / rowsPerPage))
@@ -652,7 +730,7 @@ export default function BillingInvoice() {
       totalPrice: '',
       billingDescription: '',
       invoiceDate: '',
-      subtotal: '',
+      subtotal: 0,
       discount: '',
     })
     setSaveError('')
@@ -666,19 +744,14 @@ export default function BillingInvoice() {
     const payload = formToApiPayload(form)
     try {
       if (editingRow) {
-        const { data } = await coreAxios.patch(
-          API_PATHS.updateInvoice(editingRow.id),
-          payload
-        )
-        const mapped = mapApiToInvoice(data)
-        setRows((prev) => prev.map((r) => (r.id === editingRow.id ? mapped : r)))
+        const invoiceId = editingRow.invoice_id ?? editingRow.id
+        await coreAxios.patch(API_PATHS.updateInvoice(invoiceId), payload)
         toast.success('Invoice updated successfully.')
       } else {
-        const { data } = await coreAxios.post(API_PATHS.ADD_INVOICE, payload)
-        const mapped = mapApiToInvoice(data)
-        setRows((prev) => [...prev, mapped])
+        await coreAxios.post(API_PATHS.ADD_INVOICE, payload)
         toast.success('Invoice created successfully.')
       }
+      await loadList()
       setModalOpen(false)
       setEditingRow(null)
     } catch (err) {
@@ -699,7 +772,7 @@ export default function BillingInvoice() {
     {
       field: 'invoice_id',
       header: 'ID',
-      width: '90px',
+      width: '70px',
       sortable: true,
       sortableBody: (rowData) => tableBodyTemp(rowData, 'invoice_id'),
     },
@@ -738,26 +811,23 @@ export default function BillingInvoice() {
       sortable: false,
       sortableBody: (rowData) => tableBodyTemp(rowData, 'client_phone'),
     },
-    {
-      field: 'invoice_no',
-      header: 'Invoice No',
-      width: '120px',
-      sortable: true,
-      sortableBody: (rowData) => tableBodyTemp(rowData, 'invoice_no'),
-    },
+   
     {
       field: 'unit_price',
       header: 'Unit Price',
-      width: '100px',
-      sortable: true,
+      width: '120px',
+      sortable: false,
       sortableBody: (rowData) => tableBodyTemp(rowData, 'unit_price'),
     },
     {
       field: 'total_price',
       header: 'Total Price',
-      width: '100px',
-      sortable: true,
-      sortableBody: (rowData) => tableBodyTemp(rowData, 'total_price'),
+      width: '120px',
+      sortable: false,
+      sortableBody: (rowData) => {
+        const calc = calcTotalPrice(rowData?.unit_price, rowData?.discount)
+        return calc !== '' ? calc : tableBodyTemp(rowData, 'total_price')
+      },
     },
     // {
     //   field: 'billing_description',
@@ -770,6 +840,25 @@ export default function BillingInvoice() {
     //     return s.length > 40 ? `${s.slice(0, 37)}…` : (s || '—')
     //   },
     // },
+    {
+      field: 'invoice_no',
+      header: 'Invoice No',
+      width: '120px',
+      sortable: true,
+      sortableBody: (rowData) => {
+        const val = tableBodyTemp(rowData, 'invoice_no')
+        return (
+          <button
+            type="button"
+            className="users-invoice-no-link"
+            onClick={() => handleOpenPdfForRow(rowData)}
+            title="Open invoice PDF"
+          >
+            {val}
+          </button>
+        )
+      },
+    },
     {
       field: 'invoice_date',
       header: 'Date',
@@ -822,7 +911,7 @@ export default function BillingInvoice() {
         </div>
       )}
 
-      <div className="users-table-section">
+      <div className="users-table-section" style={{ marginBottom: '20px' }}>
         <Table columns={tableColumns} data={pageRows} emptyMessage="No invoices found." />
       </div>
 
@@ -952,13 +1041,12 @@ export default function BillingInvoice() {
                 setForm((prev) => ({
                   ...prev,
                   unitPrice,
-                  subtotal,
-                  totalPrice: calcTotalPrice(subtotal, prev.discount),
+                  totalPrice: calcTotalPrice(unitPrice, prev.discount),
                 }))
               }}
             />
           </div>
-          <div className="users-form-field">
+          {/* <div className="users-form-field">
             <InputField
               label="Subtotal"
               name="subtotal"
@@ -972,7 +1060,7 @@ export default function BillingInvoice() {
                 }))
               }}
             />
-          </div>
+          </div> */}
           <div className="users-form-field">
             <InputField
               label="Discount (%)"
@@ -984,7 +1072,7 @@ export default function BillingInvoice() {
                 setForm((prev) => ({
                   ...prev,
                   discount,
-                  totalPrice: calcTotalPrice(prev.subtotal, discount),
+                  totalPrice: calcTotalPrice(prev.unitPrice, discount),
                 }))
               }}
             />

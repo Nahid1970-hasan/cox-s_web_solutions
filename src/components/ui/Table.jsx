@@ -14,8 +14,9 @@ import '../../css/components/ui/Table.css'
  * @param {function} renderCell - optional (key, value, row) => ReactNode when column has no sortableBody
  * @param {function} renderHeader - optional (key) => ReactNode
  * @param {React.ReactNode} emptyMessage
+ * @param {string} responsiveScrollLabel - Optional label for the scroll area (e.g. "Scroll to view all columns")
  */
-export default function Table({ columns = [], data = [], renderCell, renderHeader, emptyMessage = 'No data' }) {
+export default function Table({ columns = [], data = [], renderCell, renderHeader, emptyMessage = 'No data', responsiveScrollLabel = '' }) {
   const [sortField, setSortField] = useState(null)
   const [sortDirection, setSortDirection] = useState('asc') // 'asc' | 'desc'
 
@@ -79,8 +80,15 @@ export default function Table({ columns = [], data = [], renderCell, renderHeade
   }
 
   return (
-    <div className="ui-table-wrap">
-      <div className="ui-table-scroll" style={{ overflowX: 'auto', overflowY: 'hidden' }}>
+    <div className="ui-table-wrap" style={{ marginBottom: '10px', marginTop: '10px' }}>
+      {responsiveScrollLabel && (
+        <span className="ui-table-scroll-label"  aria-hidden>{responsiveScrollLabel}</span>
+      )}
+      <div
+        className="ui-table-scroll"
+        style={{ overflowX: 'auto', overflowY: 'hidden' }}
+        aria-label={responsiveScrollLabel || 'Table with horizontal scroll'}
+      >
         <table className="ui-table">
           <thead>
             <tr>

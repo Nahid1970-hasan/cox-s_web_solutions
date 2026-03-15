@@ -56,8 +56,8 @@ export default function Footer() {
         <div className="footer-links">
           <h4>Contact Info</h4>
           <ul>
-            <li>+123 456 7890</li>
-            <li>hello@coxwebsolutions.com</li>
+            <li>+8801840452081</li>
+            <li>info@coxwebsolutions.com</li>
           </ul>
         </div>
       </div>

@@ -104,16 +104,18 @@
   margin: 0;
 }
 
+/* Uniform left/right padding for all admin pages (buttons, table, search, pagination) */
 .admin-content {
   flex: 1;
-  padding:10px 20px 0 20px !important;
+  padding: 24px 32px 32px 32px;
+  min-width: 0;
 }
 
 .admin-content-title {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--color-dark-blue);
-  margin: 0 0 10px 0 !important;
+  margin: 0 0 16px 0;
 }
 .admin-cards {
   display: grid;
@@ -388,6 +390,10 @@
 
   .admin-main {
     margin-left: 0;
+  }
+
+  .admin-content {
+    padding: 16px 20px 24px 20px;
   }
 
   .admin-nav {

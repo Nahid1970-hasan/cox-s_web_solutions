@@ -97,6 +97,9 @@ export const Table = ({
     tableHeaderComponent,
     checkboxCellColor,
     width,
+    responsiveScrollLabel = "Scroll to view all columns",
+    scrollable = true,
+    scrollHeight = "60vh",
     ...rest
 }) => {
     const [search, setSearch] = useState("");
@@ -621,11 +624,31 @@ export const Table = ({
     };
 
     return (
-        <div className={`overflow-x-auto ${sticky && "sticky"} ${!topSelection && "hideCheckBox"}`}>
+        <div className={`overflow-x-auto ${sticky && "sticky"} ${!topSelection && "hideCheckBox"}`} aria-label={responsiveScrollLabel || "Table with horizontal scroll"}>
+            {responsiveScrollLabel && (
+                <span className="p-datatable-scroll-label" aria-hidden>{responsiveScrollLabel}</span>
+            )}
             <style>{`
                 .p-datatable-customers .p-datatable-thead th {
                     background-color: #043975 !important;
                     color: white !important;
+                }
+                .p-datatable-scroll-label {
+                    display: block;
+                    font-size: 0.75rem;
+                    color: #6b7280;
+                    margin-bottom: 6px;
+                }
+                /* Scrollable body: show all rows (downscroll) and all columns (horizontal scroll) */
+                .p-datatable-customers.p-datatable-scrollable .p-datatable-wrapper {
+                    overflow: auto;
+                    max-height: 100%;
+                }
+                .p-datatable-customers.p-datatable-scrollable .p-datatable-scrollable-body-table,
+                .p-datatable-customers.p-datatable-scrollable .p-datatable-scrollable-header-table,
+                .p-datatable-customers.p-datatable-scrollable .p-datatable-scrollable-footer-table {
+                    width: max-content;
+                    min-width: 100%;
                 }
             `}</style>
             <div className="card">
@@ -652,6 +675,8 @@ export const Table = ({
                     stripedRows
                     autoLayout={autoLayout}
                     responsiveLayout="scroll"
+                    scrollable={scrollable}
+                    scrollHeight={scrollable ? scrollHeight : undefined}
                     selectionMode="checkbox"
                     isDataSelectable={isRowSelectable}
                     rowClassName={rowClassName}
