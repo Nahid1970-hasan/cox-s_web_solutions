@@ -33,7 +33,7 @@ export default function Header() {
             ))}
           </ul>
         </nav>
-        <Link to="/login" className="header-login btn btn-outline" onClick={() => setMenuOpen(false)}>Login</Link>
+        {/* <Link to="/login" className="header-login btn btn-outline" onClick={() => setMenuOpen(false)}>Login</Link> */}
         <button
           type="button"
           className="menu-toggle"

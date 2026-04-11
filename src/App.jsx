@@ -1,6 +1,5 @@
 import React from 'react'
 import { Routes, Route } from 'react-router-dom'
-import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { ViewportProvider } from './context/ViewportContext'
 import Header from './components/page-components/Header'
@@ -30,6 +29,7 @@ import AdminContactInfo from './components/page-components/admin/ContactInfo'
 import AdminClientInfo from './components/page-components/admin/ClientInfo'
 import AdminBillingInvoice from './components/page-components/admin/BillingInvoice'
 import AdminCompanyInfo from './components/page-components/admin/CompanyInfo'
+import { ToastContainer } from 'react-toastify'
 
 function HomePage() {
   return (
