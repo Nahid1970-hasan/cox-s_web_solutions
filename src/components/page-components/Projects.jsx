@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
-import { apiUrl, API_PATHS } from '../../config/env'
+import { apiUrl, mediaUrl, API_PATHS } from '../../config/env'
 import '../../css/components/Projects.css'
 
 function mapPublicProject(p) {
+  const rawImg = p.image_file ?? p.image ?? p.image_file ?? p.img ?? ''
   return {
     id: p.project_id ?? p.id,
     title: String(p.project_name ?? ''),
     date: p.date ?? p.created_at ?? p.created_date ?? '',
     details: p.project_details ?? '',
     url: p.project_link ?? '',
-    image: p.img_url ?? '',
+    image: mediaUrl(rawImg),
   }
 }
 
@@ -77,7 +78,20 @@ export default function Projects() {
             <article key={card.id} className="project-card-simple">
               <div className="project-card-simple-img" >
                 {card.image ? (
-                  <img src={card.image} alt={card.title} />
+                  <img
+                    src={card.image}
+                    alt={card.title}
+                    loading="lazy"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none'
+                      const parent = e.currentTarget.parentNode
+                      if (parent && !parent.querySelector('.project-card-simple-img-placeholder')) {
+                        const ph = document.createElement('div')
+                        ph.className = 'project-card-simple-img-placeholder'
+                        parent.appendChild(ph)
+                      }
+                    }}
+                  />
                 ) : (
                   <div className="project-card-simple-img-placeholder" />
                 )}

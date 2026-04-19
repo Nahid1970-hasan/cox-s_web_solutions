@@ -16,6 +16,26 @@ export function apiUrl(path) {
   return `${base}${p}`
 }
 
+/**
+ * Resolve a backend-served media path into a fully-qualified URL.
+ * - Absolute URLs (http/https), data: and blob: URLs are returned unchanged.
+ * - Relative paths (e.g. '/media/projects/foo.jpg' or 'media/projects/foo.jpg')
+ *   are prefixed with the backend base URL so <img src> works from the Vite dev origin.
+ * - null/empty/non-string values return ''.
+ * @param {string} path
+ * @returns {string}
+ */
+export function mediaUrl(path) {
+  if (!path || typeof path !== 'string') return ''
+  const trimmed = path.trim()
+  if (!trimmed) return ''
+  if (/^(https?:)?\/\//i.test(trimmed)) return trimmed
+  if (/^(data|blob):/i.test(trimmed)) return trimmed
+  const base = API_BASE_URL.replace(/\/$/, '')
+  const p = trimmed.startsWith('/') ? trimmed : `/${trimmed}`
+  return `${base}${p}`
+}
+
 /** Backend API paths used by the frontend. */
 export const API_PATHS = {
   LOGIN: '/api/users/login/',
@@ -44,6 +64,8 @@ export const API_PATHS = {
   ADD_BLOG: '/api/add_blog/',
   updateBlog: (id) => `/api/update_blog/${id}/`,
   deleteBlog: (id) => `/api/delete_blog/${id}/`,
+  // Blogs (public)
+  BLOGS_PUBLIC_LIST: '/api/blogs_public_dashboard/',
   // Contact
   SAVE_CONTACTS: '/api/save_contacts/',
   CONTACTS_LIST: '/api/contacts/',

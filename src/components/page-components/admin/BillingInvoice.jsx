@@ -66,7 +66,6 @@ function mapApiToInvoice(api) {
     invoice_date: api.invoice_date ?? '',
     subtotal: api.subtotal ?? '',
     discount: api.discount ?? '',
-    invoice_no: api.invoice_no ?? '',
   }
 }
 
